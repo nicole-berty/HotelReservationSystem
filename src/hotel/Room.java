@@ -8,11 +8,7 @@ public class Room {
     private String guestName;
 
     Room(int roomNumber, RoomType roomType, int occupancy) {
-        this.roomNumber = roomNumber;
-        this.roomType = roomType;
-        this.occupancy = occupancy;
-        this.occupied = false;
-        this.guestName = "";
+        this(roomNumber, roomType, occupancy, false, "");
     }
 
     Room(int roomNumber, RoomType roomType, int occupancy, boolean occupied, String guestName) {

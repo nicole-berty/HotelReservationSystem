@@ -6,17 +6,23 @@ public class Room {
     private int occupancy;
     private boolean occupied;
     private String guestName;
+    private double cost;
 
-    Room(int roomNumber, RoomType roomType, int occupancy) {
-        this(roomNumber, roomType, occupancy, false, "");
+    Room(int roomNumber, RoomType roomType, int occupancy, double cost) {
+        this(roomNumber, roomType, occupancy, cost, false, "");
     }
 
-    Room(int roomNumber, RoomType roomType, int occupancy, boolean occupied, String guestName) {
+    Room(int roomNumber, RoomType roomType, int occupancy, double cost, boolean occupied, String guestName) {
         this.roomNumber = roomNumber;
         this.roomType = roomType;
         this.occupancy = occupancy;
+        this.cost = cost;
         this.occupied = occupied;
         this.guestName = guestName;
+    }
+
+    public boolean isOccupied() {
+        return occupied;
     }
 }
 

@@ -1,18 +1,21 @@
 package hotel;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class Hotel {
     private String name;
     private int numRooms;
+    private Date openDate;
     private int currentOccupancy = 0;
     private ArrayList<RoomType> roomTypes;
     private ArrayList<Room> rooms;
 
-    Hotel(String name, int numRooms, ArrayList<RoomType> roomTypes, ArrayList<Room> rooms) {
+    Hotel(String name, int numRooms, Date openDate, ArrayList<RoomType> roomTypes, ArrayList<Room> rooms) {
         this.name = name;
         this.numRooms = numRooms;
+        this.openDate = openDate;
         this.roomTypes = roomTypes;
         this.rooms = rooms;
     }
@@ -36,5 +39,9 @@ public class Hotel {
                 currentOccupancy += 1;
             }
         }
+    }
+
+    String toCsvString() {
+        return String.format("%s,%s,%s,%s,%s", name, numRooms, openDate, roomTypes.toString(), rooms.toString());
     }
 }

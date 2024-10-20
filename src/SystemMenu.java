@@ -22,12 +22,7 @@ public class SystemMenu {
         }
         switch (userInput.toLowerCase()) {
             case "1":
-                System.out.println("Enter employee username:");
-                userInput = sc.nextLine();
-                // TODO: validate credentials
-                System.out.println("Enter employee password:");
-                userInput = sc.nextLine();
-                System.out.println("You have successfully logged in!");
+                userInput = displayEmployeeLogin();
                 break;
             case "2":
                 System.out.println("Enter guest surname:");
@@ -41,6 +36,22 @@ public class SystemMenu {
             case "q":
                 exit(0);
         }
+    }
+
+    static void displayFirstTimeMenu() {
+        System.out.println("Welcome to the new MegaCorp© Hotel Management System, specially designed for all Megacorp© Hotels!\n" +
+                "No hotels have been created yet - login as the hotel administrator to get started! These credentials were sent to you in the system welcome email.");
+        displayEmployeeLogin();
+    }
+
+    private static String displayEmployeeLogin() {
+        System.out.println("Enter username:");
+        String userInput = sc.nextLine();
+        // TODO: validate credentials
+        System.out.println("Enter password:");
+        userInput = sc.nextLine();
+        System.out.println("You have successfully logged in!");
+        return userInput;
     }
 
     private static List<String> getOptions(int numValues) {

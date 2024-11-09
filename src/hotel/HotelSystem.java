@@ -7,7 +7,7 @@ public class HotelSystem {
     public static void add(Hotel hotel) throws IOException {
         File hotelFile = new File(fileName);
         if(!hotelFile.exists()) {
-            createFile();
+            createFile(hotelFile);
         }
         addHotelToFile(hotel);
     }
@@ -19,9 +19,8 @@ public class HotelSystem {
         out.println(hotel.toCsvString());
     }
 
-    private static void createFile() {
+    private static void createFile(File hotelFile) {
         try {
-            File hotelFile = new File(fileName);
             if (hotelFile.createNewFile()) {
                 System.out.println(STR."File created: \{hotelFile.getName()}");
             } else {

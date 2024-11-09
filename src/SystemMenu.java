@@ -1,6 +1,10 @@
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import hotel.Hotel;
+import hotel.RoomType;
+
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.stream.IntStream;
 
 import static java.lang.System.exit;
@@ -42,6 +46,29 @@ public class SystemMenu {
         System.out.println("Welcome to the new MegaCorp© Hotel Management System, specially designed for all Megacorp© Hotels!\n" +
                 "No hotels have been created yet - login as the hotel administrator to get started! These credentials were sent to you in the system welcome email.");
         displayEmployeeLogin();
+        System.out.println("What is the name of this hotel?");
+        String userInput = sc.nextLine();
+        Hotel hotel = new Hotel(userInput);
+        System.out.println("When did this hotel open? Please enter the date in YYYY-MM-DD format");
+        DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        while (true) {
+            try {
+                userInput = sc.nextLine();
+                Date date = format.parse(userInput);
+                hotel.setOpenDate(date);
+                break;
+            } catch (ParseException e) {
+                System.err.println("Please enter a valid date!");
+            }
+        }
+        System.out.println("Which types of rooms does this hotel have? Please enter a comma separated list of options, e.g. 1,2,3");
+        for(RoomType roomType : RoomType.values()) {
+            userInput = "";
+            while(!userInput.equalsIgnoreCase("y") && !userInput.equalsIgnoreCase("n")) {
+                System.out.printf("Does this hotel have %s rooms? Y/N\t\t", roomType.toString().toLowerCase());
+                userInput = sc.nextLine();
+            }
+        }
     }
 
     private static String displayEmployeeLogin() {

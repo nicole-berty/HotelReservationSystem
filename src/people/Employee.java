@@ -1,10 +1,9 @@
 package people;
 
-abstract class Employee extends Person {
-    private String position;
-
-    Employee(String name, int id, String position) {
-        super(name,id);
-        this.position = position;
+public abstract class Employee extends Person {
+    private double salary;
+    Employee(String name, String email, int id, double salary) {
+        super(name,email, id);
+        this.salary = salary;
     }
 }

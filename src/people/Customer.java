@@ -3,8 +3,8 @@ package people;
 public class Customer extends Person {
     private int numCompletedReservations;
 
-    Customer(String name, int id) {
-        super(name, id);
+    Customer(String name, String email, int id) {
+        super(name, email, id);
     }
 
     public void setNumCompletedReservations(int numCompletedReservations) {

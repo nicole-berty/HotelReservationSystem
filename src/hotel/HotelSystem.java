@@ -7,7 +7,7 @@ import java.io.*;
 
 public class HotelSystem {
     public static final String hotelCredentials = "./src/data/ValidCredentials.csv";
-    private final String hotelFileName = "./src/data/MegaCorpHotelReservations.csv";
+    public static final String hotelFileName = "./src/data/MegaCorpHotelReservations.csv";
     private boolean initialised = false;
 
     public void initialise() {
@@ -15,7 +15,7 @@ public class HotelSystem {
         int lineCount = SystemUtils.getNumLinesInFile(hotelFileName);
         if(lineCount <= 1) {
             if(lineCount == 0) {
-                SystemUtils.writeToFile(hotelFileName, "Hotel Name,Open Date,Number of Rooms,Room Types,");
+                SystemUtils.writeToFile(hotelFileName, "Hotel Name,Open Date,Number of Rooms,Room Types,Rooms,Employees");
             }
             SystemMenu.displayFirstTimeMenu();
         } else {

@@ -1,14 +1,23 @@
 package hotel;
 
 public enum RoomType {
-    SINGLE,
-    STANDARD_DOUBLE,
-    STANDARD_TWIN,
-    TRIPLE,
-    DELUXE_DOUBLE,
-    STUDIO_APARTMENT,
-    EXECUTIVE_SUITE;
+    SINGLE(1),
+    STANDARD_DOUBLE(2),
+    STANDARD_TWIN(2),
+    TRIPLE(3),
+    DELUXE_DOUBLE(3),
+    STUDIO_APARTMENT(4),
+    EXECUTIVE_SUITE(5);
 
+    private final int occupancy;
+
+    RoomType(int occupancy) {
+        this.occupancy = occupancy;
+    }
+
+    public int getOccupancy() {
+        return occupancy;
+    }
 
     @Override
     public String toString()

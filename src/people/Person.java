@@ -10,4 +10,9 @@ abstract class Person {
         this.email = email;
         this.id = id;
     }
+
+    @Override
+    public String toString() {
+        return STR."Person{name='\{name}', email='\{email}', id=\{id}}";
+    }
 }

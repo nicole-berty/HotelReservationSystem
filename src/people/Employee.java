@@ -6,4 +6,9 @@ public abstract class Employee extends Person {
         super(name,email, id);
         this.salary = salary;
     }
+
+    @Override
+    public String toString() {
+        return super.toString() + STR." Employee{salary=\{salary}}";
+    }
 }

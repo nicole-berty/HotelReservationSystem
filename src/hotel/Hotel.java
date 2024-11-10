@@ -2,10 +2,7 @@ package hotel;
 
 import people.Employee;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.EnumMap;
-import java.util.List;
+import java.util.*;
 
 public class Hotel {
     private String name;
@@ -13,11 +10,12 @@ public class Hotel {
     private Date openDate;
     private int currentOccupancy = 0;
     private EnumMap<RoomType, Double> roomTypes;
-    private ArrayList<Room> rooms;
-    private ArrayList<Employee> employees;
+    private ArrayList<Room> rooms = new ArrayList<>();
+    private ArrayList<Employee> employees = new ArrayList<>();
 
     public Hotel(String name) {
         this.name = name;
+        this.roomTypes = new EnumMap<>(RoomType.class);
     }
 
     Hotel(String name, int numRooms, Date openDate, EnumMap<RoomType, Double> roomTypes, ArrayList<Room> rooms, ArrayList<Employee> employees) {
@@ -66,6 +64,10 @@ public class Hotel {
         return rooms.stream().filter(room -> !room.isOccupied()).toList();
     }
 
+    public void addEmployee(Employee employee) {
+        employees.add(employee);
+    }
+
     void calcCurrentOccupancy() {
         for(Room room : rooms) {
             if(room.isOccupied()) {
@@ -74,7 +76,15 @@ public class Hotel {
         }
     }
 
-    String toCsvString() {
-        return String.format("%s,%s,%s,%s,%s", name, numRooms, openDate, roomTypes.toString(), rooms.toString());
+    public String toCsvString() {
+        StringBuilder roomSb = new StringBuilder();
+        for(Room room : rooms) {
+            roomSb.append(room.toString()).append(",");
+        }
+        /*for(Map.Entry<RoomType, Double> roomTypeCost : roomTypes.entrySet()) {
+            roomTypeSb.append(roomTypeCost.getKey().toString()).append(" - Occupancy:");
+            roomTypeSb.append(roomTypeCost.getKey().getOccupancy());
+        }*/
+        return String.format("%s,%s,%s,%s,%s,%s", name, openDate, numRooms, roomTypes.toString(), rooms.toString(), employees.toString());
     }
 }

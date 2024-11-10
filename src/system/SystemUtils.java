@@ -12,8 +12,8 @@ import java.util.stream.Stream;
 public class SystemUtils {
     /**
      *
-     * @param fileName
-     * @return true if file created or already exists, false otherwise
+     * @param fileName the name of the file to be created or retrieved
+     * @return the file if file is created or already exists, null otherwise
      */
     public static File getOrCreateFile(String fileName) {
         File file = new File(fileName);
@@ -40,7 +40,7 @@ public class SystemUtils {
     public static List<String> readAndSearchFile(String fileName, String searchValue) {
         try (Stream<String> stream = Files.lines(Paths.get(fileName))) {
             var result = stream.filter(line -> Arrays.asList(line.split(",")).contains(searchValue)).findFirst();
-            return result.stream().toList();
+            return Arrays.asList(result.orElse("").split(","));
         } catch (IOException e) {
             return null;
         }
@@ -51,8 +51,8 @@ public class SystemUtils {
         try(PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(fileName, true)))) {
             out.println(data);
             return true;
-        }catch (IOException e) {
-            System.err.println(e);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return false;
     }

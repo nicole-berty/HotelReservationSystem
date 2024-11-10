@@ -1,3 +1,5 @@
+package system;
+
 import hotel.Hotel;
 import hotel.RoomType;
 
@@ -12,7 +14,7 @@ import static java.lang.System.exit;
 public class SystemMenu {
     static Scanner sc = new Scanner(System.in);
 
-    static void displayStartMenu() {
+    public static void displayStartMenu() {
         List<String> validValues = getOptions(2);
         System.out.println("Enter the option you would like to access or press q to exit.");
         System.out.println("(1) Employee Login");
@@ -26,7 +28,7 @@ public class SystemMenu {
         }
         switch (userInput.toLowerCase()) {
             case "1":
-                userInput = displayEmployeeLogin();
+                employeeLogin();
                 break;
             case "2":
                 System.out.println("Enter guest surname:");
@@ -42,10 +44,19 @@ public class SystemMenu {
         }
     }
 
-    static void displayFirstTimeMenu() {
+    public static void displayFirstTimeMenu() {
         System.out.println("Welcome to the new MegaCorp© Hotel Management System, specially designed for all Megacorp© Hotels!\n" +
-                "No hotels have been created yet - login as the hotel administrator to get started! These credentials were sent to you in the system welcome email.");
-        displayEmployeeLogin();
+                "No hotels have been created yet - login as the hotel manager to get started! These credentials were sent to you in the system welcome email.");
+        boolean loggedIn = employeeLogin();
+        if(loggedIn) {
+            System.out.println("You have successfully logged in!");
+            createHotel();
+        } else {
+            System.out.println("Those credentials do not match our records, please try again!");
+        }
+    }
+
+    private static void createHotel() {
         System.out.println("What is the name of this hotel?");
         String userInput = sc.nextLine();
         Hotel hotel = new Hotel(userInput);
@@ -71,14 +82,12 @@ public class SystemMenu {
         }
     }
 
-    private static String displayEmployeeLogin() {
+    private static boolean employeeLogin() {
         System.out.println("Enter username:");
-        String userInput = sc.nextLine();
-        // TODO: validate credentials
+        String email = sc.nextLine();
         System.out.println("Enter password:");
-        userInput = sc.nextLine();
-        System.out.println("You have successfully logged in!");
-        return userInput;
+        String password = sc.nextLine();
+        return SystemUtils.validateCredentials(email, password);
     }
 
     private static List<String> getOptions(int numValues) {

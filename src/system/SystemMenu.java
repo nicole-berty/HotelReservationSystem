@@ -1,7 +1,6 @@
 package system;
 
 import hotel.Hotel;
-import hotel.HotelSystem;
 import hotel.Room;
 import hotel.RoomType;
 import people.HotelManager;
@@ -44,7 +43,7 @@ public class SystemMenu {
     }
 
     public static void displayFirstTimeMenu() {
-        System.out.println("Welcome to the new MegaCorp© Hotel Management System, specially designed for all Megacorp© Hotels!\n" +
+        System.out.println("Welcome to the new MegaCorp(C) Hotel Management System, specially designed for all Megacorp(C) Hotels!\n" +
                 "No hotels have been created yet - login as the hotel manager to get started! These credentials were sent to you in the system welcome email.");
         login();
         System.out.println("As this is the first time using the system, you need to register the hotel.");
@@ -102,6 +101,8 @@ public class SystemMenu {
                 Date date = SystemUtils.getDateFormat().parse(userInput);
                 hotel.setOpenDate(date);
                 break;
+                // Checked exception ParseException may occur when parsing a date in incorrect format, e.g. 2024-20-12,
+                // must catch it or declare it in the method signature
             } catch (ParseException e) {
                 System.err.println("Please enter a valid date!");
             }
@@ -165,7 +166,7 @@ public class SystemMenu {
                     continue;
                 }
                 break;  // get out of the loop
-                // catch error if user enters input of incorrect type/range
+                // Unchecked exceptions possible here - catch error if user enters input of incorrect type/range
             } catch (InputMismatchException mme) {
                 System.out.println(errorText);
                 sc.nextLine();

@@ -11,6 +11,8 @@ public final class HotelManager extends Employee {
     }
 
     public HotelManager(String name, String email, int id, double salary, String[] managedDepartments, Employee[] staffUnderManagement) {
+        // contrasting this(), used to invoke another constructor in the class, with this, which is used to access class
+        // fields like this.managedDepartments
         this(name, email, id, salary);
         this.managedDepartments = managedDepartments;
         this.staffUnderManagement = staffUnderManagement;

@@ -1,9 +1,8 @@
 package system;
 
-import hotel.HotelSystem;
-
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -22,9 +21,12 @@ public class SystemUtils {
         File file = new File(fileName);
         try {
             if (file.createNewFile()) {
+                // Java22 Feature: String templates for easier string interpolation
                 System.out.println(STR."File created: \{file.getName()}");
             }
             return file;
+            // Checked exception IOException may occur when creating, opening or reading files, must catch it or declare
+            // it in the method signature
         } catch (IOException e) {
             System.out.println(STR."An error occurred when creating the file \{file.getName()}.");
             e.printStackTrace();
@@ -77,8 +79,10 @@ public class SystemUtils {
         File credentialsFile = SystemUtils.getOrCreateFile(HotelSystem.hotelCredentials);
         if(credentialsFile != null) {
             // data is a list of (id, email, password) from the credentials csv file or null if credentials not found
+            // LVT1 => local variable type inferred here
             var data = readAndSearchFile(HotelSystem.hotelCredentials, email);
-            // avoid NullPointerException and ArrayIndexOutOfBoundsException by checking nullity and list length
+            // Unchecked exceptions possible here - avoid NullPointerException and ArrayIndexOutOfBoundsException by
+            // checking nullity and list length before attempting access
             return data != null && data.size() > 2 && email.equals(data.get(1)) && password.equals(data.get(2));
         }
         return false;

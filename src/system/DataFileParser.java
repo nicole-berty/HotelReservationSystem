@@ -98,7 +98,9 @@ public class DataFileParser {
         ArrayList<Employee> employees = new ArrayList<>();
         if(employeeData != null && !employeeData.isBlank() && !employeeData.equals("null")) {
         ArrayList<Person> peopleList = parsePersonList(employeeData);
+        // LVT1 - type inferred while iterating for loop
         for(var person : peopleList) {
+            // Pattern Matching for the instanceof Operator
             if(person instanceof Employee employee) {
                 employees.add(employee);
             }

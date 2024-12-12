@@ -1,8 +1,6 @@
-package hotel;
+package system;
 
-import system.DataFileParser;
-import system.SystemMenu;
-import system.SystemUtils;
+import hotel.Hotel;
 
 import java.util.ArrayList;
 import java.util.List;

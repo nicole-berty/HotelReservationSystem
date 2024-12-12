@@ -1,4 +1,6 @@
-package hotel;
+package reservations;
+
+import hotel.Room;
 
 import java.util.ArrayList;
 import java.util.Date;

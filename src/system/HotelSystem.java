@@ -24,6 +24,7 @@ public class HotelSystem {
     public static final String hotelCredentials = "./src/data/ValidCredentials.csv";
     public static final String hotelsFileName = "./src/data/MegaCorpHotels.csv";
     public static final String reservationsFileName = "./src/data/MegaCorpHotelReservations.csv";
+    private boolean guestLogin = true;
     ArrayList<Hotel> hotels = new ArrayList<>();
 
     public void initialise() {
@@ -44,6 +45,14 @@ public class HotelSystem {
             }
             SystemMenu.displayFirstTimeMenu();
         }
+    }
+
+    public boolean isGuestLogin() {
+        return guestLogin;
+    }
+
+    public void setGuestLogin(boolean guestLogin) {
+        this.guestLogin = guestLogin;
     }
 
     public void addToHotelList(Hotel hotel) {

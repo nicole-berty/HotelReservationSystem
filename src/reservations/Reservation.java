@@ -8,6 +8,7 @@ import java.util.Date;
 public class Reservation {
     private int id;
     private String name;
+    private String email;
     private ReservationType reservationType;
     private boolean refundable;
     private Date checkInDate;
@@ -21,7 +22,7 @@ public class Reservation {
     private boolean paid = false;
     private boolean completed = false;
 
-    Reservation(int id, String name, boolean refundable, Date checkInDate, int numNights, double totalCost, double deposit) {
+    Reservation(int id, String name, String email, boolean refundable, Date checkInDate, int numNights, double totalCost, double deposit) {
 
     }
 

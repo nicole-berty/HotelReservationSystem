@@ -29,17 +29,17 @@ public class SystemMenu {
         switch (userInput.toLowerCase()) {
             case "1":
                 login();
+                HotelSystem.getInstance().setGuestLogin(false);
                 break;
             case "2":
-                System.out.println("Enter guest surname:");
-                userInput = getInput();
-                // TODO: validate credentials
-                System.out.println("Enter reservation number:");
-                userInput = getInput();
+                login(true);
                 // TODO: Add guest name below
                 System.out.println("Welcome back, guest!");
                 break;
         }
+        // Control will only reach this point if login was successful, as login contains a loop that is only broken by
+        // successfully logging in or entering Q to exit the program
+
     }
 
     public static void displayFirstTimeMenu() {
@@ -71,9 +71,15 @@ public class SystemMenu {
     }
 
     private static void login() {
+        login(false);
+    }
+
+    // login is overloaded, the version without params calls the overloaded method with false as the argument, because
+    // that's used for staff login
+    private static void login(boolean guestLogin) {
         boolean loggedIn = false;
         while(!loggedIn) {
-            loggedIn = inputAndCheckCredentials();
+            loggedIn = inputAndCheckCredentials(guestLogin);
             if (loggedIn) {
                 System.out.println("You have successfully logged in!");
             } else {
@@ -187,16 +193,16 @@ public class SystemMenu {
         return userInput;
     }
 
-    private static boolean inputAndCheckCredentials() {
-        System.out.println("Enter username:");
+    private static boolean inputAndCheckCredentials(boolean guestLogin) {
+        System.out.println("Enter email: ");
         String email = getInput();
-        System.out.println("Enter password:");
+        System.out.printf("Enter %s: \n", guestLogin ? "reservation number" : "password");
         String password = getInput();
         return SystemUtils.validateCredentials(email, password);
     }
 
     private static List<String> getOptions(int numValues) {
-        List<Integer> intValues = IntStream.range(0, numValues).boxed().toList();
+        List<Integer> intValues = IntStream.range(1, numValues + 1).boxed().toList();
         return new ArrayList<>(intValues.stream().map(Object::toString).toList());
     }
 }

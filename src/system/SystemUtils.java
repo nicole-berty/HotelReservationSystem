@@ -75,6 +75,9 @@ public class SystemUtils {
         return false;
     }
 
+    // variables are named email and password as they're for logging into system, customer password is their reservation
+    // number. As a customer can have many bookings, they can use any valid combination of email and reservation number
+    // as long as they use the same email as was used in the given reservation
     public static boolean validateCredentials(String email, String password) {
         File credentialsFile = SystemUtils.getOrCreateFile(HotelSystem.hotelCredentials);
         if(credentialsFile != null) {

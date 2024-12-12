@@ -1,6 +1,6 @@
 package people;
 
-public abstract class Employee extends Person {
+public abstract sealed class Employee extends Person permits HotelManager, HotelReceptionist {
     private double salary;
     Employee(String name, String email, int id, double salary) {
         super(name,email, id);
@@ -9,6 +9,6 @@ public abstract class Employee extends Person {
 
     @Override
     public String toString() {
-        return super.toString() + STR." Employee{salary=\{salary}}";
+        return super.toString() + STR."salary=\{salary}, ";
     }
 }

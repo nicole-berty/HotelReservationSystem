@@ -19,7 +19,7 @@ public class Room {
         this(roomNumber, roomType, occupancy, floorNum, cost, false, "");
     }
 
-    Room(int roomNumber, RoomType roomType, int occupancy, int floorNum, double cost, boolean occupied, String guestName) {
+    public Room(int roomNumber, RoomType roomType, int occupancy, int floorNum, double cost, boolean occupied, String guestName) {
         this(roomType, occupancy, cost);
         this.roomNumber = roomNumber;
         this.floorNum = floorNum;

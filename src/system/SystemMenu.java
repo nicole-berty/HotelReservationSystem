@@ -6,9 +6,7 @@ import hotel.Room;
 import hotel.RoomType;
 import people.HotelManager;
 
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.IntStream;
 
@@ -31,7 +29,7 @@ public class SystemMenu {
         }
         switch (userInput.toLowerCase()) {
             case "1":
-                inputAndCheckCredentials();
+                login();
                 break;
             case "2":
                 System.out.println("Enter guest surname:");
@@ -42,8 +40,6 @@ public class SystemMenu {
                 // TODO: Add guest name below
                 System.out.println("Welcome back, guest!");
                 break;
-            case "q":
-                exit(0);
         }
     }
 
@@ -56,8 +52,16 @@ public class SystemMenu {
         System.out.println("Let's initialise you on the system.");
         HotelManager hotelManager = createManager(1, "megacorpmanager1@gmail.com");
         hotel.addEmployee(hotelManager);
-        SystemUtils.writeToFile(HotelSystem.hotelFileName, hotel.toCsvString());
+        addHotelToSystem(hotel);
     }
+
+        private static void addHotelToSystem(Hotel hotel) {
+            if(HotelSystem.getInstance().addHotel(hotel)) {
+                System.out.println("Successfully created the hotel!");
+            } else {
+                System.out.println("Sorry, an error occurred and the hotel was not added.");
+            }
+        }
 
         private static HotelManager createManager(int id, String email) {
         System.out.println("Enter your name");
@@ -92,13 +96,10 @@ public class SystemMenu {
         String userInput = getInput();
         Hotel hotel = new Hotel(userInput);
         System.out.println("When did this hotel open? Please enter the date in YYYY-MM-DD format");
-        DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-        // set lenient to false so invalid months will not be allowed
-        format.setLenient(false);
         while (true) {
             try {
                 userInput = getInput();
-                Date date = format.parse(userInput);
+                Date date = SystemUtils.getDateFormat().parse(userInput);
                 hotel.setOpenDate(date);
                 break;
             } catch (ParseException e) {
@@ -117,7 +118,7 @@ public class SystemMenu {
                 hotel.addRoomType(roomType, cost);
                 System.out.println("How many rooms of this type are in the hotel?");
                 numRooms = (int) getNumberInput("Enter a whole number greater than 0.", true);
-                String autoNumberRooms = displayYesNoQuestion(STR."Do you want the rooms to be automatically numbered based on their floor? Y/N\nE.g Rooms on floor 1 will be 101, 102, rooms on floor 2 will be 201, 202, etc.");
+                String autoNumberRooms = displayYesNoQuestion("Do you want the rooms to be automatically numbered based on their floor? Y/N\nE.g Rooms on floor 1 will be 101, 102, rooms on floor 2 will be 201, 202, etc.");
                 while (!userInput.equalsIgnoreCase("n") && !userInput.matches("^[1-9]\\d*$")) {
                     System.out.println("Enter the floor number if all the rooms of this type are on the same floor or N if they're not, and then you will need to manually enter the floor for each room.");
                     userInput = getInput();
@@ -137,7 +138,7 @@ public class SystemMenu {
                     }
                     room.setFloorNum(num);
                     if(autoNumberRooms.equalsIgnoreCase("n")) {
-                        System.out.println(STR."Enter the room number for the room.");
+                        System.out.println("Enter the room number for the room.");
                         num = (int) getNumberInput("Enter a whole number greater than 0.", true);
                     } else {
                         // num is currently set to the floor number from above code, multiply by 100 so first floor = 100,
@@ -164,6 +165,7 @@ public class SystemMenu {
                     continue;
                 }
                 break;  // get out of the loop
+                // catch error if user enters input of incorrect type/range
             } catch (InputMismatchException mme) {
                 System.out.println(errorText);
                 sc.nextLine();
@@ -194,8 +196,6 @@ public class SystemMenu {
 
     private static List<String> getOptions(int numValues) {
         List<Integer> intValues = IntStream.range(0, numValues).boxed().toList();
-        List<String> options = new ArrayList<>(intValues.stream().map(Object::toString).toList());
-        options.add("q");
-        return options;
+        return new ArrayList<>(intValues.stream().map(Object::toString).toList());
     }
 }

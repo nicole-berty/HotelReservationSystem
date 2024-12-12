@@ -1,16 +1,16 @@
 package people;
 
-import java.util.ArrayList;
-
-public class HotelManager extends Employee {
-    private ArrayList<String> managedDepartments;
-    private ArrayList<Employee> staffUnderManagement;
+public final class HotelManager extends Employee {
+    private String[] managedDepartments;
+    private Employee[] staffUnderManagement;
 
     public HotelManager(String name, String email, int id, double salary) {
         super(name, email, id, salary);
+        managedDepartments = new String[0];
+        staffUnderManagement = new Employee[0];
     }
 
-    HotelManager(String name, String email, int id, double salary, ArrayList<String> managedDepartments, ArrayList<Employee> staffUnderManagement) {
+    public HotelManager(String name, String email, int id, double salary, String[] managedDepartments, Employee[] staffUnderManagement) {
         this(name, email, id, salary);
         this.managedDepartments = managedDepartments;
         this.staffUnderManagement = staffUnderManagement;
@@ -18,6 +18,11 @@ public class HotelManager extends Employee {
 
     @Override
     public String toString() {
-        return super.toString() + STR." HotelManager{managedDepartments=\{managedDepartments}, staffUnderManagement=\{staffUnderManagement}}";
+        String departments = String.join(",", managedDepartments);
+        StringBuilder managedEmployeesSb = new StringBuilder();
+        for(Employee employee : staffUnderManagement) {
+            managedEmployeesSb.append(employee.toString()).append(",");
+        }
+        return super.toString() + STR."position='HotelManager', managedDepartments=\{departments}, staffUnderManagement=[\{managedEmployeesSb}]}";
     }
 }

@@ -33,5 +33,14 @@ public enum RoomType {
             default -> "";
         };
     }
+
+    public static RoomType fromString(String text) {
+        for (RoomType b : RoomType.values()) {
+            if (b.toString().equalsIgnoreCase(text)) {
+                return b;
+            }
+        }
+        return null;
+    }
 }
 

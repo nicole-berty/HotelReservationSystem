@@ -1,6 +1,7 @@
 package hotel;
 
 import people.Employee;
+import system.SystemUtils;
 
 import java.util.*;
 
@@ -18,7 +19,7 @@ public class Hotel {
         this.roomTypes = new EnumMap<>(RoomType.class);
     }
 
-    Hotel(String name, int numRooms, Date openDate, EnumMap<RoomType, Double> roomTypes, ArrayList<Room> rooms, ArrayList<Employee> employees) {
+    public Hotel(String name, int numRooms, Date openDate, EnumMap<RoomType, Double> roomTypes, ArrayList<Room> rooms, ArrayList<Employee> employees) {
         this.name = name;
         this.numRooms = numRooms;
         this.openDate = openDate;
@@ -85,6 +86,7 @@ public class Hotel {
             roomTypeSb.append(roomTypeCost.getKey().toString()).append(" - Occupancy:");
             roomTypeSb.append(roomTypeCost.getKey().getOccupancy());
         }*/
-        return String.format("%s,%s,%s,%s,%s,%s", name, openDate, numRooms, roomTypes.toString(), rooms.toString(), employees.toString());
+        return String.format("%s|%s|%s|%s|%s|%s", name, SystemUtils.getDateFormat().format(openDate), numRooms,
+                roomTypes.toString(), rooms.toString(), employees.toString());
     }
 }

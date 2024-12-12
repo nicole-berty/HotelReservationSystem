@@ -1,6 +1,6 @@
 package people;
 
-abstract class Person {
+sealed public abstract class Person permits Customer, Employee {
     private String name;
     private String email;
     private int id;
@@ -13,6 +13,6 @@ abstract class Person {
 
     @Override
     public String toString() {
-        return STR."Person{name='\{name}', email='\{email}', id=\{id}}";
+        return STR."Person{name='\{name}', email='\{email}', id=\{id}, ";
     }
 }

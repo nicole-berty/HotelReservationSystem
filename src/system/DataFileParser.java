@@ -4,6 +4,7 @@ import hotel.Hotel;
 import hotel.Room;
 import hotel.RoomType;
 import people.*;
+import pricing.PricingStrategy;
 import reservations.Reservation;
 import reservations.ReservationType;
 
@@ -39,9 +40,18 @@ public class DataFileParser {
         boolean paid = Boolean.parseBoolean(fields[13]);
         boolean cancelled = Boolean.parseBoolean(fields[14]);
         boolean complete = Boolean.parseBoolean(fields[15]);
+        PricingStrategy pricingStrategy = PricingStrategy.fromString(fields[16]);
+        boolean checkedIn = Boolean.parseBoolean(fields[17]);
+        String[] addCostsArr = fields[18].replace("{", "").replace("}", "").trim().split(",");
+        int[] additionalCosts = new int[addCostsArr.length];
+
+        for (int i = 0; i < addCostsArr.length; i++) {
+            additionalCosts[i] = Integer.parseInt(addCostsArr[i]);
+        }
 
         return new Reservation(reservationId, name, email, advancedPurchase, hotelName, refundable, checkIn, numNights,
-                totalCost, deposit, creationDate, cancellationDate, roomsReserved, paid, cancelled, complete);
+                totalCost, deposit, creationDate, cancellationDate, roomsReserved, paid, cancelled, complete, pricingStrategy,
+                checkedIn, additionalCosts);
     }
 
     public static Hotel parseHotelData(String fileLine) {
@@ -53,13 +63,14 @@ public class DataFileParser {
         String roomTypeCosts = fields[3];
         String roomsList = fields[4];
         String personData = fields[5];
+        PricingStrategy pricingStrategy = PricingStrategy.fromString(fields[6]);
 
         // Parse Room Types and Costs, and Rooms and Employees lists
         EnumMap<RoomType, Double> roomTypeCostMap = parseRoomTypeCosts(roomTypeCosts);
         ArrayList<Room> rooms = parseRoomsList(roomsList);
         ArrayList<Employee> employees = getEmployeesFromPeopleList(personData);
 
-        return new Hotel(hotelName, roomsAvailable, date, roomTypeCostMap, rooms, employees);
+        return new Hotel(hotelName, roomsAvailable, date, roomTypeCostMap, rooms, employees, pricingStrategy);
     }
 
     private static EnumMap<RoomType, Double> parseRoomTypeCosts(String data) {

@@ -1,7 +1,6 @@
 package system;
 
 import hotel.Hotel;
-import people.Person;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,13 +23,12 @@ public class HotelSystem {
     }
 
     private Hotel selectedHotel;
-    private Person currentUser;
     ArrayList<Hotel> hotels = new ArrayList<>();
 
     public final Map<String, FileDetails> dataFiles = Map.of(
             "credentials", new FileDetails("./src/data/ValidCredentials.csv", "email|password|hotel|person\n"),
-            "hotels", new FileDetails("./src/data/MegaCorpHotels.csv", "Hotel Name|Open Date|Number of Rooms|Room Types|Rooms|Employees\n"),
-            "reservations", new FileDetails("./src/data/MegaCorpHotelReservations.csv", "Reservation Id|Name|Email|Type|Hotel|Refundable|Check In|Num Nights|Total Cost|Deposit|Creation Date|Cancellation Date|Rooms Reserved|Paid|Cancelled|Complete\n")
+            "hotels", new FileDetails("./src/data/MegaCorpHotels.csv", "Hotel Name|Open Date|Number of Rooms|Room Types|Rooms|Employees|PricingStrategy\n"),
+            "reservations", new FileDetails("./src/data/MegaCorpHotelReservations.csv", "Reservation Id|Name|Email|Type|Hotel|Refundable|Check In|Num Nights|Total Cost|Deposit|Creation Date|Cancellation Date|Rooms Reserved|Paid|Cancelled|Complete|PricingStrategy|Checked In|AdditionalCosts\n")
     );
 
 
@@ -58,14 +56,6 @@ public class HotelSystem {
 
     public void setSelectedHotel(Hotel selectedHotel) {
         this.selectedHotel = selectedHotel;
-    }
-
-    public void setCurrentUser(Person currentUser) {
-        this.currentUser = currentUser;
-    }
-
-    public Person getCurrentUser() {
-        return currentUser;
     }
 
     public void addToHotelList(Hotel hotel) {

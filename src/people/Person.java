@@ -1,6 +1,7 @@
 package people;
 
 import hotel.RoomType;
+import pricing.PricingStrategy;
 import reservations.Reservation;
 import system.DataFileParser;
 import system.HotelSystem;
@@ -28,6 +29,8 @@ sealed public abstract class Person permits Customer, Employee {
         return email;
     }
 
+    // Runtime Polymorphism (Dynamic Method Dispatch) - this method is overridden in sublasses and which version of
+    // it is used depends on object type that calls it at runtime
     public void cancelReservation(Reservation reservation) {
         reservation.setCancelled(true);
         reservation.setCancellationDate(new Date());
@@ -39,13 +42,17 @@ sealed public abstract class Person permits Customer, Employee {
     }
 
     public void makeReservation(String name, String email, boolean advancedPurchase, boolean refundable, Date checkInDate,
-                                int numNights, EnumMap<RoomType, Integer> roomsReserved, boolean paid) {
-        Reservation reservation = new Reservation(name, email, advancedPurchase, refundable, checkInDate, numNights, roomsReserved, paid);
+                                int numNights, EnumMap<RoomType, Integer> roomsReserved, boolean paid, int[] additionalCosts) {
+        PricingStrategy pricingStrategy = HotelSystem.getInstance().getSelectedHotel().getPricingStrategy();
+        Reservation reservation = new Reservation(name, email, advancedPurchase, refundable, checkInDate, numNights, roomsReserved, paid, pricingStrategy, additionalCosts);
+        System.out.println("Note that all prices in MegaCorp(C) Hotels may be liable for additional charges or discounts seasonally or based on certain promotions.");
+        System.out.println(STR."The pricing strategy currently in place is \{pricingStrategy}");
+
         if(!paid) {
-            System.out.println("You must pay a 10% deposit today for the booking. This is refundable up to 5 days before your arrival.");
+            System.out.println("You must pay a 10% deposit today for the booking.");
             reservation.setDepositPaid(reservation.calculateDeposit());
         }
-        System.out.println(STR."The total reservation cost is \{reservation.getTotalCost()}.\nThe deposit is \{reservation.getDepositPaid()} and the remaining balance to be paid is \{reservation.calculateRemainingCost()}");
+        System.out.println(STR."The total reservation cost is \{reservation.getTotalCost()}.\nThe non refundable deposit is \{reservation.getDepositPaid()} and the remaining balance to be paid is \{reservation.calculateRemainingCost()}");
         System.out.println(STR."Your reservation number is \{reservation.getReservationId()}.");
         SystemUtils.writeToFile(HotelSystem.getInstance().dataFiles.get("reservations"), reservation.toString());
     }

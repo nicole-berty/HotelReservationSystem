@@ -1,11 +1,13 @@
 package people;
 
+import hotel.Hotel;
+import hotel.RoomType;
 import reservations.Reservation;
-import system.DataFileParser;
 import system.HotelSystem;
 import system.SystemUtils;
 
-import java.util.List;
+import java.util.Date;
+import java.util.EnumMap;
 
 public final class HotelManager extends Employee {
     private String[] managedDepartments;
@@ -33,6 +35,20 @@ public final class HotelManager extends Employee {
         boolean success = SystemUtils.writeToFile(HotelSystem.getInstance().dataFiles.get("reservations"), reservations, false);
         if(success) {
             System.out.println(STR."The discount was applied and the new cost of the reservation is \{newPrice}");
+        }
+    }
+
+    @Override
+    public void cancelReservation(Reservation reservation) {
+        System.out.println(STR."Manager \{getName()} cancelling reservation...");
+        super.cancelReservation(reservation);
+    }
+
+    public void changePricingStrategy(Hotel updatedHotel) {
+        String hotel = SystemUtils.getModifiedHotelsList(updatedHotel);
+        boolean success = SystemUtils.writeToFile(HotelSystem.getInstance().dataFiles.get("hotels"), hotel, false);
+        if(success) {
+            System.out.println("The new pricing strategy has been applied to the hotel!");
         }
     }
 

@@ -15,10 +15,6 @@ public class Room {
         this.cost = cost;
     }
 
-    Room(int roomNumber, RoomType roomType, int occupancy, int floorNum, double cost) {
-        this(roomNumber, roomType, occupancy, floorNum, cost, false, "");
-    }
-
     public Room(int roomNumber, RoomType roomType, int occupancy, int floorNum, double cost, boolean occupied, String guestName) {
         this(roomType, occupancy, cost);
         this.roomNumber = roomNumber;

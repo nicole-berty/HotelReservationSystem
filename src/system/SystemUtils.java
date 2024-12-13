@@ -1,5 +1,6 @@
 package system;
 
+import hotel.Hotel;
 import people.Employee;
 import people.HotelManager;
 import people.HotelReceptionist;
@@ -74,6 +75,24 @@ public class SystemUtils {
         }
     }
 
+    public static String getModifiedHotelsList(Hotel updatedHotel) {
+        List<String> fileContents = SystemUtils.readFileAsString(HotelSystem.getInstance().dataFiles.get("hotels").path());
+        StringBuilder hotels = new StringBuilder();
+        // start from first line of file to skip headers
+        for(int i = 1; i < fileContents.size(); i++) {
+            Hotel hotel = DataFileParser.parseHotelData(fileContents.get(i));
+            if(hotel.getName().equals(updatedHotel.getName())) {
+                hotel = new Hotel(hotel);
+            }
+            hotels.append(hotel);
+            // append new line on each line except the last one to avoid unnecessary whitespace in file
+            if(i != fileContents.size() - 1) {
+                hotels.append("\n");
+            }
+        }
+        return hotels.toString();
+    }
+
     public static String getModifiedReservationList(Reservation updatedReservation) {
         List<String> fileContents = SystemUtils.readFileAsString(HotelSystem.getInstance().dataFiles.get("reservations").path());
         StringBuilder reservations = new StringBuilder();
@@ -99,7 +118,7 @@ public class SystemUtils {
 
     public static boolean writeToFile(FileDetails fileDetails, String data, boolean append) {
         if(getOrCreateFile(fileDetails.path()) != null) {
-            String dataWithHeaders = "";
+            String dataWithHeaders;
             // if the file is missing headers or if we're going to overwrite instead of append, add headers to data
             if(isMissingHeaders(fileDetails.path()) || !append) {
                 dataWithHeaders = fileDetails.headers() + data;

@@ -7,14 +7,17 @@ import people.Customer;
 import people.Employee;
 import people.HotelManager;
 import people.Person;
+import pricing.PricingStrategy;
 import reservations.Reservation;
 
 import java.text.ParseException;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static java.lang.System.exit;
+import static java.lang.System.in;
 
 public class SystemMenu {
     static Scanner sc = new Scanner(System.in);
@@ -58,7 +61,7 @@ public class SystemMenu {
                 if(employee instanceof HotelManager) {
                     displayMainManagerMenu((HotelManager) employee);
                 } else {
-                    displayMainMenu(employee);
+                    displayEmployeeMainMenu(employee);
                 }
                 break;
             case "2":
@@ -67,24 +70,21 @@ public class SystemMenu {
                 System.out.println("Enter your email: ");
                 String email = getInput();
                 Customer customer = new Customer(userInput, email);
-                HotelSystem.getInstance().setCurrentUser(customer);
                 displayMainMenu(customer);
                 break;
             case "3":
-                HotelSystem.getInstance().setCurrentUser(null);
                 displayHotelSelectionMenu();
                 break;
         }
     }
 
-    public static void displayMainManagerMenu(HotelManager manager) {
+    public static void displayEmployeeMainMenu(Employee employee) {
         //noinspection InfiniteLoopStatement - false positive warning, we only want to exit if user input is q
         while(true) {
-            List<String> validValues = getOptions(3);
+            List<String> validValues = getOptions(2);
             System.out.println("Enter the option you would like to access or press q to exit.");
             System.out.println("(1) Reservations & Cancellations");
-            System.out.println("(2) Apply Discount");
-            System.out.println("(3) View Reservations");
+            System.out.println("(2) Check in / Check out");
             System.out.println("(q) Exit");
             String userInput = getInput();
             while (!validValues.contains(userInput.toLowerCase())) {
@@ -93,20 +93,97 @@ public class SystemMenu {
             }
             switch (userInput.toLowerCase()) {
                 case "1":
-                    displayMainMenu(manager);
+                    displayMainMenu(employee);
+                    break;
+                case "2":
+                    System.out.println("Enter the reservation number:");
+                    String reservation = findReservation();
+                    if (!reservation.isBlank()) {
+                        Reservation reservation1 = DataFileParser.parseReservationData(reservation);
+                        System.out.println("(1) Check In (2) Check out");
+                        userInput = getInput();
+                        while (!validValues.contains(userInput.toLowerCase())) {
+                            System.out.println("Please enter a valid option!");
+                            userInput = getInput();
+                        }
+                        switch (userInput) {
+                            case "1" -> employee.checkIn(reservation1);
+                            case "2" -> employee.checkOut(reservation1);
+                        }
+                    } else {
+                        System.out.println("Reservation not found!");
+                    }
+                    break;
+            }
+        }
+    }
+
+
+    public static void displayMainManagerMenu(HotelManager manager) {
+        //noinspection InfiniteLoopStatement - false positive warning, we only want to exit if user input is q
+        while(true) {
+            List<String> validValues = getOptions(3);
+            System.out.println("Enter the option you would like to access or press q to exit.");
+            System.out.println("(1) Reservations, Cancellations & Check In/out");
+            System.out.println("(2) Apply Discounts");
+            System.out.println("(3) Adjust Pricing Strategy");
+            System.out.println("(q) Exit");
+            String userInput = getInput();
+            while (!validValues.contains(userInput.toLowerCase())) {
+                System.out.println("Please enter a valid option!");
+                userInput = getInput();
+            }
+            switch (userInput.toLowerCase()) {
+                case "1":
+                    displayEmployeeMainMenu(manager);
                     break;
                 case "2":
                     String reservation = findReservation();
                     if (!reservation.isBlank()) {
                         Reservation reservation1 = DataFileParser.parseReservationData(reservation);
-                        System.out.println(STR."The total cost of this reservation is \{reservation1.getTotalCost()}.");
+                        System.out.println(STR."The total cost of this reservation is \{reservation1.getPricingStrategy()
+                                .displayFormattedPrice(reservation1.getTotalCost())}.");
                         System.out.println("How much of a % discount would you like to apply?");
                         double discount = getNumberInput("Please enter a number greater than 0.", false);
                         manager.giveDiscount(reservation1, discount);
                     }
                     break;
+                case "3":
+                    String hotel = findHotel();
+                    if(hotel.isBlank()) {
+                        System.out.println("There was an issue obtaining the hotel details. Please try again later");
+                    } else {
+                        Hotel hotel1 = DataFileParser.parseHotelData(hotel);
+                        System.out.println(STR."Which pricing strategy would you like the hotel to use from now on? \nIt currently uses the \{hotel1.getPricingStrategy()} strategy.");
+                        System.out.println("(1) Regular Pricing (2) Promotional Pricing (3) Corporate Pricing (4) Seasonal Pricing");
+                        List<String> newValidOptions = getOptions(4);
+                        while (!newValidOptions.contains(userInput.toLowerCase())) {
+                            System.out.println("Please enter a valid option!");
+                            userInput = getInput();
+                        }
+                        String strategy = "regular";
+                        switch (userInput) {
+                            case "1" -> strategy = "regular";
+                            case "2" -> strategy = "promotional";
+                            case "3" -> strategy = "corporate";
+                            case "4" -> strategy = "seasonal";
+                        }
+                        PricingStrategy pricingStrategy = PricingStrategy.fromString(strategy);
+                        hotel1.setPricingStrategy(pricingStrategy);
+                        manager.changePricingStrategy(hotel1);
+                    }
+                    break;
             }
         }
+    }
+
+    private static String findHotel() {
+        // Provide a default empty list in case method returned null
+        return Optional.ofNullable(SystemUtils.readAndSearchFile(HotelSystem.getInstance().dataFiles.get("hotels").path(), HotelSystem.getInstance().getSelectedHotel().getName()))
+                .orElse(List.of()) // Provide a default empty list in case method returned null
+                .stream()
+                .filter(Objects::nonNull)
+                .collect(Collectors.joining("|"));
     }
 
     private static String findReservation() {
@@ -158,9 +235,10 @@ public class SystemMenu {
                     break;
                 case "3":
                     if(person instanceof Employee) {
-                        System.out.println("View Reservations (1) All (2) By Check In Date (3) By Email");
+                        System.out.println("View Reservations (1) All (2) By Check In Date (3) By Email (4) Cancelled (5) Completed Stays");
                         userInput = getInput();
-                        while (!validValues.contains(userInput.toLowerCase())) {
+                        List<String> innerValidValues = getOptions(5);
+                        while (!innerValidValues.contains(userInput.toLowerCase())) {
                             System.out.println("Please enter a valid option!");
                             userInput = getInput();
                         }
@@ -175,8 +253,22 @@ public class SystemMenu {
                                 break;
                             case "3":
                                 System.out.println("Enter the email you want to get reservations for.");
+                                // email is effectively final here, variable used in lambda needs to be final or
+                                // effectively final, it's accessed but never modified.
                                 String email = getInput();
-                                person.retrieveAllReservations().stream().filter(r -> Objects.equals(r.getEmail(), email)).forEach(System.out::println);
+                                person.retrieveAllReservations().stream().filter(r -> email.equals(r.getEmail())).forEach(System.out::println);
+                                break;
+                            case "4":
+                                System.out.println("Cancelled reservations:");
+                                // predicate used to filter reservations for those which were cancelled
+                                Predicate<Reservation> cancellationPredicate = Reservation::isCancelled;
+                                person.retrieveAllReservations().stream().filter(cancellationPredicate).forEach(System.out::println);
+                                break;
+                            case "5":
+                                System.out.println("Completed stays:");
+                                Predicate<Reservation> completedPredicate = Reservation::isCompleted;
+                                // method reference used to filter reservations for those which are completed
+                                person.retrieveAllReservations().stream().filter(completedPredicate::test).forEach(System.out::println);
                                 break;
                         }
                     } else {
@@ -194,6 +286,8 @@ public class SystemMenu {
         String input = displayYesNoQuestion("Are you sure you want to cancel this reservation? Y/N");
         if(input.equalsIgnoreCase("y")) {
             Reservation reservation1 = DataFileParser.parseReservationData(reservation);
+            // Runtime Polymorphism (Dynamic Method Dispatch) - this method is overridden from person class and which version of
+            // it is used depends on object type that calls it at runtime
             person.cancelReservation(reservation1);
         } else {
             System.out.println("Aborting. Back to main menu....");
@@ -249,7 +343,8 @@ public class SystemMenu {
             System.out.println("You must pay in full today as your reservation is imminent. Your booking cannot be refunded.");
             paid = true;
         }
-        person.makeReservation(name, email, advancedPurchase, refundable, checkInDate, numNights, roomsReserved, paid);
+        int[] additionalCosts = new int[0];
+        person.makeReservation(name, email, advancedPurchase, refundable, checkInDate, numNights, roomsReserved, paid, additionalCosts);
     }
 
     public static void displayFirstTimeMenu() {
@@ -282,7 +377,6 @@ public class SystemMenu {
         while(true) {
             Employee employee = inputAndCheckCredentials();
             if (employee != null) {
-                HotelSystem.getInstance().setCurrentUser(employee);
                 System.out.println("You have successfully logged in!");
                 return employee;
             } else {

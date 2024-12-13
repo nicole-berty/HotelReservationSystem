@@ -1,6 +1,7 @@
 package system;
 
 import hotel.Hotel;
+import people.Person;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,35 +25,41 @@ public class HotelSystem {
     public static final String hotelCredentials = "./src/data/ValidCredentials.csv";
     public static final String hotelsFileName = "./src/data/MegaCorpHotels.csv";
     public static final String reservationsFileName = "./src/data/MegaCorpHotelReservations.csv";
-    private boolean guestLogin = true;
+    private Hotel selectedHotel;
+    private Person currentUser;
     ArrayList<Hotel> hotels = new ArrayList<>();
 
     public void initialise() {
         SystemUtils.getOrCreateFile(hotelsFileName);
-        int lineCount = SystemUtils.getNumLinesInFile(hotelsFileName);
-        // if more than 1 line in the file, we've already initialised the system as the headers and another line are present
-        if(lineCount > 1) {
+        boolean addedHeaders = SystemUtils.addHeaders(hotelsFileName, "Hotel Name|Open Date|Number of Rooms|Room Types|Rooms|Employees");
+
+        if(addedHeaders) {
+            SystemMenu.displayFirstTimeMenu();
+            // if we didn't add headers, we've already initialised the system previously
+        } else {
             List<String> fileContents = SystemUtils.readFileAsString(hotelsFileName);
             // start from first line of file to skip headers
             for(int i = 1; i < fileContents.size(); i++) {
                 addToHotelList(DataFileParser.parseHotelData(fileContents.get(i)));
             }
-            SystemMenu.displayStartMenu();
-        } else {
-            if(lineCount == 0) {
-                // if the file is empty, add the headers
-                SystemUtils.writeToFile(hotelsFileName, "Hotel Name,Open Date,Number of Rooms,Room Types,Rooms,Employees");
-            }
-            SystemMenu.displayFirstTimeMenu();
+            SystemMenu.displayHotelSelectionMenu();
         }
     }
 
-    public boolean isGuestLogin() {
-        return guestLogin;
+    public Hotel getSelectedHotel() {
+        return selectedHotel;
     }
 
-    public void setGuestLogin(boolean guestLogin) {
-        this.guestLogin = guestLogin;
+    public void setSelectedHotel(Hotel selectedHotel) {
+        this.selectedHotel = selectedHotel;
+    }
+
+    public void setCurrentUser(Person currentUser) {
+        this.currentUser = currentUser;
+    }
+
+    public Person getCurrentUser() {
+        return currentUser;
     }
 
     public void addToHotelList(Hotel hotel) {

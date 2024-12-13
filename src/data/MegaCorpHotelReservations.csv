@@ -1,0 +1,3 @@
+Reservation Id, Name, Email, Type, Hotel, Refundable, Check In, Num Nights, Total Cost, Deposit, Creation Date, Cancellation Date, Rooms Reserved, Paid
+aLZycuErL|n|n|Advance Purchase|Miggy's Motel|true|2024-12-19|3|1710.0|0.0|2024-12-12|null|{Single Room (1 Single Bed):2,Standard Double Room:0,Triple Room (3 Single Beds):1,|true
+hWVW8sEda|n|n|Standard|Miggy's Motel|false|2024-12-14|3|0.0|0.0|2024-12-12|null|{Single Room (1 Single Bed):0,|true

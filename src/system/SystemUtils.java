@@ -1,13 +1,17 @@
 package system;
 
+import people.Employee;
+import people.HotelManager;
+import people.HotelReceptionist;
+
 import java.io.*;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -52,20 +56,35 @@ public class SystemUtils {
         }
     }
 
+    public static boolean addHeaders(String fileName, String headers) {
+        int lineCount = SystemUtils.getNumLinesInFile(fileName);
+        // if less than 1 line in the file, there's no headers so add them and return true to indicate headers were added
+        if(lineCount < 1) {
+            SystemUtils.writeToFile(fileName, headers);
+            return true;
+        }
+        return false;
+    }
+
     public static List<String> readAndSearchFile(String fileName, String searchValue) {
         try (Stream<String> stream = Files.lines(Paths.get(fileName))) {
             // LVT1 => local variable type inferred
-            var result = stream.filter(line -> Arrays.asList(line.split(",")).contains(searchValue)).findFirst();
-            return Arrays.asList(result.orElse("").split(","));
+            var result = stream.filter(line -> Arrays.asList(line.split("\\|")).contains(searchValue)).findFirst();
+            return Arrays.asList(result.orElse("").split("\\|"));
         } catch (IOException e) {
             return null;
         }
     }
 
+    // overloaded writeToFile method to default the append value to true
     public static boolean writeToFile(String fileName, String data) {
+        return writeToFile(fileName, data, true);
+    }
+
+    public static boolean writeToFile(String fileName, String data, boolean append) {
         if(getOrCreateFile(fileName) != null) {
         // try-with-resources statement means we don't need to close the resources
-        try(PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(fileName, true)))) {
+        try(PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(fileName, append)))) {
             out.println(data);
             return true;
         } catch (IOException e) {
@@ -75,20 +94,34 @@ public class SystemUtils {
         return false;
     }
 
-    // variables are named email and password as they're for logging into system, customer password is their reservation
-    // number. As a customer can have many bookings, they can use any valid combination of email and reservation number
-    // as long as they use the same email as was used in the given reservation
-    public static boolean validateCredentials(String email, String password) {
+    public static Employee validateAndGetEmployee(String email, String password) {
         File credentialsFile = SystemUtils.getOrCreateFile(HotelSystem.hotelCredentials);
         if(credentialsFile != null) {
-            // data is a list of (id, email, password) from the credentials csv file or null if credentials not found
+            // data is a list of (email, password, hotel, Person) from the credentials csv file or null if credentials not found
             // LVT1 => local variable type inferred here
             var data = readAndSearchFile(HotelSystem.hotelCredentials, email);
             // Unchecked exceptions possible here - avoid NullPointerException and ArrayIndexOutOfBoundsException by
             // checking nullity and list length before attempting access
-            return data != null && data.size() > 2 && email.equals(data.get(1)) && password.equals(data.get(2));
+            if(data != null && data.size() > 2 && email.equals(data.get(0)) && password.equals(data.get(1))
+                    && HotelSystem.getInstance().getSelectedHotel().getName().equals(data.get(2))) {
+                ArrayList<Employee> employees = DataFileParser.getEmployeesFromPeopleList(STR."[\{data.get(3)}]");
+                for(Employee employee : employees) {
+                    if(employee instanceof HotelManager) {
+                        return new HotelManager(employee.getName(), email, employee.getSalary(),
+                                ((HotelManager) employee).getManagedDepartments(),
+                                ((HotelManager) employee).getStaffUnderManagement());
+                    } else if(employee instanceof HotelReceptionist) {
+                        return new HotelReceptionist(employee.getName(), email, employee.getSalary(),
+                                ((HotelReceptionist) employee).getAssignedCheckInCounter());
+                    }
+                }
+            }
         }
-        return false;
+        return null;
+    }
+
+    public static String getDateStringOrNull(Date date) {
+        return date == null ? null : getDateFormat().format(date);
     }
 
     public static DateFormat getDateFormat() {

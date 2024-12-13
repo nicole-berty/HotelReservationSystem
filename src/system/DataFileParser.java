@@ -67,34 +67,33 @@ public class DataFileParser {
     private static ArrayList<Person> parsePersonList(String data) {
         ArrayList<Person> people = new ArrayList<>();
         // match regex for people
-        Matcher personMatcher = Pattern.compile("Person\\{name='(.*?)', email='(.*?)', id=(\\d+), ([^}]*)").matcher(data);
+        Matcher personMatcher = Pattern.compile("Person\\{name='(.*?)', email='(.*?)', ([^}]*)").matcher(data);
         Matcher employeeMatcher = Pattern.compile("salary=(\\d+\\.\\d+), position='(.*?)', (?:managedDepartments=([^}]*), staffUnderManagement=([^}\\]]*)|assignedCheckInCounter=(\\d+))+").matcher(data);
         Matcher customerMatcher = Pattern.compile("numCompletedReservations=(\\d+)").matcher(data);
         while (personMatcher.find()) {
             String name = personMatcher.group(1).trim();
             String email = personMatcher.group(2).trim();
-            int id = Integer.parseInt(personMatcher.group(3).trim());
 
             while(employeeMatcher.find()) {
                 double salary = Double.parseDouble(employeeMatcher.group(1).trim());
                 String position = employeeMatcher.group(2).trim();
                 if(position.equals("HotelReceptionist")) {
-                    people.add(new HotelReceptionist(name, email, id, salary, Integer.parseInt(employeeMatcher.group(5).trim())));
+                    people.add(new HotelReceptionist(name, email, salary, Integer.parseInt(employeeMatcher.group(5).trim())));
                 } else if(position.equals("HotelManager")) {
                     Employee[] employeesManaged = getEmployeesFromPeopleList(employeeMatcher.group(4)).toArray(Employee[]::new);
-                    people.add(new HotelManager(name, email, id,salary, employeeMatcher.group(3).split(","), employeesManaged));
+                    people.add(new HotelManager(name, email,salary, employeeMatcher.group(3).split(","), employeesManaged));
                 }
             }
 
             while(customerMatcher.find()) {
                 int numCompletedReservations = Integer.parseInt(customerMatcher.group(1));
-                people.add(new Customer(name, email, id, numCompletedReservations));
+                people.add(new Customer(name, email, numCompletedReservations));
             }
         }
         return people;
     }
 
-    private static ArrayList<Employee> getEmployeesFromPeopleList(String employeeData) {
+    public static ArrayList<Employee> getEmployeesFromPeopleList(String employeeData) {
         ArrayList<Employee> employees = new ArrayList<>();
         if(employeeData != null && !employeeData.isBlank() && !employeeData.equals("null")) {
         ArrayList<Person> peopleList = parsePersonList(employeeData);

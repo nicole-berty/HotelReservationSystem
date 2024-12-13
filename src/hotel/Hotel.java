@@ -56,6 +56,14 @@ public class Hotel {
         this.currentOccupancy = currentOccupancy;
     }
 
+    public EnumMap<RoomType, Double> getRoomTypes() {
+        return roomTypes;
+    }
+
+    public String getName() {
+        return name;
+    }
+
     public int getCurrentOccupancy() {
         calcCurrentOccupancy();
         return currentOccupancy;
@@ -82,11 +90,7 @@ public class Hotel {
         for(Room room : rooms) {
             roomSb.append(room.toString()).append(",");
         }
-        /*for(Map.Entry<RoomType, Double> roomTypeCost : roomTypes.entrySet()) {
-            roomTypeSb.append(roomTypeCost.getKey().toString()).append(" - Occupancy:");
-            roomTypeSb.append(roomTypeCost.getKey().getOccupancy());
-        }*/
-        return String.format("%s|%s|%s|%s|%s|%s", name, SystemUtils.getDateFormat().format(openDate), numRooms,
-                roomTypes.toString(), rooms.toString(), employees.toString());
+        return String.format("%s|%s|%s|%s|%s|%s", name, SystemUtils.getDateStringOrNull(openDate), numRooms,
+                roomTypes.toString(), roomSb, employees.toString());
     }
 }

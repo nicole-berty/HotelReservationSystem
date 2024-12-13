@@ -3,12 +3,12 @@ package people;
 public final class Customer extends Person {
     private int numCompletedReservations;
 
-    public Customer(String name, String email, int id) {
-        super(name, email, id);
+    public Customer(String name, String email) {
+        super(name, email);
     }
 
-    public Customer(String name, String email, int id, int numCompletedReservations) {
-        this(name, email, id);
+    public Customer(String name, String email, int numCompletedReservations) {
+        this(name, email);
         setNumCompletedReservations(numCompletedReservations);
     }
 

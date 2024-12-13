@@ -2,9 +2,13 @@ package people;
 
 public final class HotelReceptionist extends Employee {
     private int assignedCheckInCounter;
-    public HotelReceptionist(String name, String email, int id, double salary, int assignedCheckInCounter) {
-        super(name, email, id, salary);
+    public HotelReceptionist(String name, String email, double salary, int assignedCheckInCounter) {
+        super(name, email, salary);
         this.assignedCheckInCounter = assignedCheckInCounter;
+    }
+
+    public int getAssignedCheckInCounter() {
+        return assignedCheckInCounter;
     }
 
     @Override

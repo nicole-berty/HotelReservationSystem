@@ -2,11 +2,15 @@ package people;
 
 public abstract sealed class Employee extends Person permits HotelManager, HotelReceptionist {
     private double salary;
-    Employee(String name, String email, int id, double salary) {
+    Employee(String name, String email, double salary) {
         // contrasting super(), used to invoke a constructor in the superclass Person, with super, which is used to access class
         // methods (if accessible) in the super class such as super.toString() called in the toString method below
-        super(name,email, id);
+        super(name,email);
         this.salary = salary;
+    }
+
+    public double getSalary() {
+        return salary;
     }
 
     @Override

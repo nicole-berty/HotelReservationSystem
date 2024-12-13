@@ -25,6 +25,16 @@ sealed public abstract class Person permits Customer, Employee {
         return email;
     }
 
+    public void cancelReservation(Reservation reservation) {
+        reservation.setCancelled(true);
+        reservation.setCancellationDate(new Date());
+        String reservations = SystemUtils.getModifiedReservationList(reservation);
+        boolean success = SystemUtils.writeToFile(HotelSystem.getInstance().dataFiles.get("reservations"), reservations, false);
+        if(success) {
+            System.out.println(STR."The reservation was successfully cancelled.");
+        }
+    }
+
     public void makeReservation(String name, String email, boolean advancedPurchase, boolean refundable, Date checkInDate,
                                 int numNights, EnumMap<RoomType, Integer> roomsReserved, boolean paid) {
         Reservation reservation = new Reservation(name, email, advancedPurchase, refundable, checkInDate, numNights, roomsReserved, paid);

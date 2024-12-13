@@ -37,9 +37,11 @@ public class DataFileParser {
             roomsReserved.put(RoomType.fromString(roomSplit[0]), Integer.parseInt(roomSplit[1].trim()));
         }
         boolean paid = Boolean.parseBoolean(fields[13]);
+        boolean cancelled = Boolean.parseBoolean(fields[14]);
+        boolean complete = Boolean.parseBoolean(fields[15]);
 
         return new Reservation(reservationId, name, email, advancedPurchase, hotelName, refundable, checkIn, numNights,
-                totalCost, deposit, creationDate, cancellationDate, roomsReserved, paid);
+                totalCost, deposit, creationDate, cancellationDate, roomsReserved, paid, cancelled, complete);
     }
 
     public static Hotel parseHotelData(String fileLine) {

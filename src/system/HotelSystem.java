@@ -30,7 +30,7 @@ public class HotelSystem {
     public final Map<String, FileDetails> dataFiles = Map.of(
             "credentials", new FileDetails("./src/data/ValidCredentials.csv", "email|password|hotel|person\n"),
             "hotels", new FileDetails("./src/data/MegaCorpHotels.csv", "Hotel Name|Open Date|Number of Rooms|Room Types|Rooms|Employees\n"),
-            "reservations", new FileDetails("./src/data/MegaCorpHotelReservations.csv", "Reservation Id|Name|Email|Type|Hotel|Refundable|Check In|Num Nights|Total Cost|Deposit|Creation Date|Cancellation Date|Rooms Reserved|Paid\n")
+            "reservations", new FileDetails("./src/data/MegaCorpHotelReservations.csv", "Reservation Id|Name|Email|Type|Hotel|Refundable|Check In|Num Nights|Total Cost|Deposit|Creation Date|Cancellation Date|Rooms Reserved|Paid|Cancelled|Complete\n")
     );
 
 

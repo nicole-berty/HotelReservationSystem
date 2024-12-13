@@ -1,12 +1,10 @@
 package reservations;
 
-import hotel.Room;
 import hotel.RoomType;
 import system.HotelSystem;
 import system.SystemUtils;
 
 import java.security.SecureRandom;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.EnumMap;
 
@@ -25,11 +23,27 @@ public class Reservation {
     private Date creationDate;
     private Date cancellationDate = null;
     private EnumMap<RoomType, Integer> roomsReserved;
-    private ArrayList<Room> rooms;
+    //private ArrayList<Room> rooms;
     private boolean paid = false;
     private boolean completed = false;
     private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
+    // Copy constructor
+    public Reservation(Reservation other) {
+        this(other.reservationId, other.name, other.email, other.reservationType == ReservationType.ADVANCE_PURCHASE,
+                other.hotelName, other.refundable, other.checkInDate, other.numNights, other.totalCost, other.depositPaid,
+                other.creationDate, other.cancellationDate, other.roomsReserved, other.paid, other.cancelled, other.completed);
+    }
+
+    public Reservation(String reservationId, String name, String email, boolean advancedPurchase, String hotelName,
+                       boolean refundable, Date checkInDate, int numNights, double totalCost, double depositPaid,
+                       Date creationDate, Date cancellationDate, EnumMap<RoomType, Integer> roomsReserved,
+                       boolean paid, boolean cancelled, boolean completed) {
+        this(reservationId, name, email, advancedPurchase, hotelName, refundable, checkInDate, numNights, totalCost,
+                depositPaid, creationDate, cancellationDate, roomsReserved, paid);
+        this.cancelled = cancelled;
+        this.completed = completed;
+    }
 
     public Reservation(String reservationId, String name, String email, boolean advancedPurchase, String hotelName,
                        boolean refundable, Date checkInDate, int numNights, double totalCost, double depositPaid,
@@ -123,16 +137,28 @@ public class Reservation {
         return id.toString();
     }
 
+    public void setCancellationDate(Date cancellationDate) {
+        this.cancellationDate = cancellationDate;
+    }
+
+    public void setCancelled(boolean cancelled) {
+        this.cancelled = cancelled;
+    }
+
+    public void setCompleted(boolean completed) {
+        this.completed = completed;
+    }
+
     @Override
     public String toString() {
         StringBuilder roomsReservedSb = new StringBuilder();
         for(var roomReserved : roomsReserved.entrySet()) {
             roomsReservedSb.append(STR."\{roomReserved.getKey()}:\{roomReserved.getValue()},");
         }
-        return String.format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s", reservationId, name, email, reservationType,
+        return String.format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s", reservationId, name, email, reservationType,
                 hotelName, refundable, SystemUtils.getDateStringOrNull(checkInDate), numNights, totalCost, depositPaid,
                 SystemUtils.getDateStringOrNull(creationDate), SystemUtils.getDateStringOrNull(cancellationDate),
-                roomsReservedSb, paid);
+                roomsReservedSb, paid, cancelled, completed);
     }
 
 }

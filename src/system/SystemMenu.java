@@ -97,33 +97,40 @@ public class SystemMenu {
                     displayMainMenu(manager);
                     break;
                 case "2":
-                    System.out.println("Enter the reservation number you'd like to apply the discount to.");
-                    userInput = getInput();
-                    String reservation = Optional.ofNullable(SystemUtils.readAndSearchFile(HotelSystem.getInstance().dataFiles.get("reservations").path(), userInput))
-                            .orElse(List.of()) // Provide a default empty list in case method returned null
-                            .stream()
-                            .filter(Objects::nonNull)
-                            .collect(Collectors.joining("|"));
-                    while (reservation.isEmpty()) {
-                        System.out.println("Reservation not found! Please try again, or press b to go back or q to quit.");
-                        userInput = getInput();
-                        if(userInput.equalsIgnoreCase("b")) {
-                            break outerSwitch;
-                        }
-                        reservation = Optional.ofNullable(SystemUtils.readAndSearchFile(HotelSystem.getInstance().dataFiles.get("reservations").path(), userInput))
-                                .orElse(List.of()) // Provide a default empty list in case method returned null
-                                .stream()
-                                .filter(Objects::nonNull)
-                                .collect(Collectors.joining("|"));
+                    String reservation = findReservation();
+                    if(!reservation.isBlank()) {
+                        Reservation reservation1 = DataFileParser.parseReservationData(reservation);
+                        System.out.println(STR."The total cost of this reservation is \{reservation1.getTotalCost()}.");
+                        System.out.println("How much of a % discount would you like to apply?");
+                        double discount = getNumberInput("Please enter a number greater than 0.", false);
+                        manager.giveDiscount(reservation1, discount);
                     }
-                    Reservation reservation1 = DataFileParser.parseReservationData(reservation);
-                    System.out.println(STR."The total cost of this reservation is \{reservation1.getTotalCost()}.");
-                    System.out.println("How much of a % discount would you like to apply?");
-                    double discount = getNumberInput("Please enter a number greater than 0.", false);
-                    manager.giveDiscount(reservation1, discount);
                     break;
             }
         }
+    }
+
+    private static String findReservation() {
+        System.out.println("Enter the reservation number you're looking for.");
+        String userInput = getInput();
+        String reservation = Optional.ofNullable(SystemUtils.readAndSearchFile(HotelSystem.getInstance().dataFiles.get("reservations").path(), userInput))
+                .orElse(List.of()) // Provide a default empty list in case method returned null
+                .stream()
+                .filter(Objects::nonNull)
+                .collect(Collectors.joining("|"));
+        while (reservation.isEmpty()) {
+            System.out.println("Reservation not found! Please try again, or press b to go back or q to quit.");
+            userInput = getInput();
+            if(userInput.equalsIgnoreCase("b")) {
+                return "";
+            }
+            reservation = Optional.ofNullable(SystemUtils.readAndSearchFile(HotelSystem.getInstance().dataFiles.get("reservations").path(), userInput))
+                    .orElse(List.of()) // Provide a default empty list in case method returned null
+                    .stream()
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.joining("|"));
+        }
+        return reservation;
     }
 
     public static void displayMainMenu(Person person) {
@@ -145,13 +152,28 @@ public class SystemMenu {
                     createReservation(person);
                     break;
                 case "2":
-
+                    String reservation = findReservation();
+                    if(!reservation.isBlank()) {
+                        cancelReservation(person, reservation);
+                    }
                     break;
             }
         }
     }
 
-    public static void createReservation(Person person) {
+    private static void cancelReservation(Person person, String reservation) {
+        System.out.println("Reservation found.");
+        System.out.println(reservation);
+        String input = displayYesNoQuestion("Are you sure you want to cancel this reservation? Y/N");
+        if(input.equalsIgnoreCase("y")) {
+            Reservation reservation1 = DataFileParser.parseReservationData(reservation);
+            person.cancelReservation(reservation1);
+        } else {
+            System.out.println("Aborting. Back to main menu....");
+        }
+    }
+
+    private static void createReservation(Person person) {
         Date checkInDate = new Date();
         long daysBetween = 0L;
         // checkInDate must be in the future

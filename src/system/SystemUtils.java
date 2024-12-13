@@ -3,6 +3,7 @@ package system;
 import people.Employee;
 import people.HotelManager;
 import people.HotelReceptionist;
+import reservations.Reservation;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -71,6 +72,24 @@ public class SystemUtils {
         } catch (IOException e) {
             return null;
         }
+    }
+
+    public static String getModifiedReservationList(Reservation updatedReservation) {
+        List<String> fileContents = SystemUtils.readFileAsString(HotelSystem.getInstance().dataFiles.get("reservations").path());
+        StringBuilder reservations = new StringBuilder();
+        // start from first line of file to skip headers
+        for(int i = 1; i < fileContents.size(); i++) {
+            Reservation reservation1 = DataFileParser.parseReservationData(fileContents.get(i));
+            if(reservation1.getReservationId().equals(updatedReservation.getReservationId())) {
+                reservation1 = new Reservation(updatedReservation);
+            }
+            reservations.append(reservation1);
+            // append new line on each line except the last one to avoid unnecessary whitespace in file
+            if(i != fileContents.size() - 1) {
+                reservations.append("\n");
+            }
+        }
+        return reservations.toString();
     }
 
     // overloaded writeToFile method to default the append value to true

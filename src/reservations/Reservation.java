@@ -137,6 +137,14 @@ public class Reservation {
         return id.toString();
     }
 
+    public Date getCheckInDate() {
+        return checkInDate;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
     public void setCancellationDate(Date cancellationDate) {
         this.cancellationDate = cancellationDate;
     }

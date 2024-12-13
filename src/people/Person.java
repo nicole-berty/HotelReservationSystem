@@ -2,11 +2,14 @@ package people;
 
 import hotel.RoomType;
 import reservations.Reservation;
+import system.DataFileParser;
 import system.HotelSystem;
 import system.SystemUtils;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.EnumMap;
+import java.util.List;
 
 sealed public abstract class Person permits Customer, Employee {
     private final String name;
@@ -31,7 +34,7 @@ sealed public abstract class Person permits Customer, Employee {
         String reservations = SystemUtils.getModifiedReservationList(reservation);
         boolean success = SystemUtils.writeToFile(HotelSystem.getInstance().dataFiles.get("reservations"), reservations, false);
         if(success) {
-            System.out.println(STR."The reservation was successfully cancelled.");
+            System.out.println("The reservation was successfully cancelled.");
         }
     }
 
@@ -45,6 +48,16 @@ sealed public abstract class Person permits Customer, Employee {
         System.out.println(STR."The total reservation cost is \{reservation.getTotalCost()}.\nThe deposit is \{reservation.getDepositPaid()} and the remaining balance to be paid is \{reservation.calculateRemainingCost()}");
         System.out.println(STR."Your reservation number is \{reservation.getReservationId()}.");
         SystemUtils.writeToFile(HotelSystem.getInstance().dataFiles.get("reservations"), reservation.toString());
+    }
+
+    public ArrayList<Reservation> retrieveAllReservations() {
+        List<String> fileContents = SystemUtils.readFileAsString(HotelSystem.getInstance().dataFiles.get("reservations").path());
+        ArrayList<Reservation> reservations = new ArrayList<>();
+        // start from first line of file to skip headers
+        for(int i = 1; i < fileContents.size(); i++) {
+            reservations.add(DataFileParser.parseReservationData(fileContents.get(i)));
+        }
+        return reservations;
     }
 
     @Override

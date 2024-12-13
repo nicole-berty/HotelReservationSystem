@@ -91,14 +91,13 @@ public class SystemMenu {
                 System.out.println("Please enter a valid option!");
                 userInput = getInput();
             }
-            outerSwitch: // label for the switch so can break out of it in loop later
             switch (userInput.toLowerCase()) {
                 case "1":
                     displayMainMenu(manager);
                     break;
                 case "2":
                     String reservation = findReservation();
-                    if(!reservation.isBlank()) {
+                    if (!reservation.isBlank()) {
                         Reservation reservation1 = DataFileParser.parseReservationData(reservation);
                         System.out.println(STR."The total cost of this reservation is \{reservation1.getTotalCost()}.");
                         System.out.println("How much of a % discount would you like to apply?");
@@ -155,6 +154,34 @@ public class SystemMenu {
                     String reservation = findReservation();
                     if(!reservation.isBlank()) {
                         cancelReservation(person, reservation);
+                    }
+                    break;
+                case "3":
+                    if(person instanceof Employee) {
+                        System.out.println("View Reservations (1) All (2) By Check In Date (3) By Email");
+                        userInput = getInput();
+                        while (!validValues.contains(userInput.toLowerCase())) {
+                            System.out.println("Please enter a valid option!");
+                            userInput = getInput();
+                        }
+                        switch (userInput) {
+                            case "1":
+                                person.retrieveAllReservations().forEach(System.out::println);
+                                break;
+                            case "2":
+                                System.out.println("Enter a date in the format YYYY-MM-DD.");
+                                Date selectedDate = getValidDate();
+                                person.retrieveAllReservations().stream().filter(r -> r.getCheckInDate() == selectedDate).forEach(System.out::println);
+                                break;
+                            case "3":
+                                System.out.println("Enter the email you want to get reservations for.");
+                                String email = getInput();
+                                person.retrieveAllReservations().stream().filter(r -> Objects.equals(r.getEmail(), email)).forEach(System.out::println);
+                                break;
+                        }
+                    } else {
+                        System.out.println("Reservations found for this email shown below.");
+                        person.retrieveAllReservations().stream().filter(r -> Objects.equals(r.getEmail(), person.getEmail())).forEach(System.out::println);
                     }
                     break;
             }

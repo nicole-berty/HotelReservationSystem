@@ -5,6 +5,8 @@ import reservations.Reservation;
 import system.HotelSystem;
 import system.SystemUtils;
 
+import java.util.Arrays;
+
 public final class HotelManager extends Employee {
     private String[] managedDepartments;
     private Employee[] staffUnderManagement;
@@ -19,8 +21,8 @@ public final class HotelManager extends Employee {
         // contrasting this(), used to invoke another constructor in the class, with this, which is used to access class
         // fields like this.managedDepartments
         this(name, email, salary);
-        this.managedDepartments = managedDepartments;
-        this.staffUnderManagement = staffUnderManagement;
+        this.managedDepartments = managedDepartments.clone();
+        this.staffUnderManagement = Arrays.copyOf(staffUnderManagement, staffUnderManagement.length);
     }
 
     public void giveDiscount(Reservation reservation, double discount) {

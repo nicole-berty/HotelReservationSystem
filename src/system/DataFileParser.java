@@ -137,14 +137,14 @@ public class DataFileParser {
     public static ArrayList<Employee> getEmployeesFromPeopleList(String employeeData) {
         ArrayList<Employee> employees = new ArrayList<>();
         if(employeeData != null && !employeeData.isBlank() && !employeeData.equals("null")) {
-        ArrayList<Person> peopleList = parsePersonList(employeeData);
-        // LVT1 - type inferred while iterating for loop
-        for(var person : peopleList) {
-            // Pattern Matching for the instanceof Operator
-            if(person instanceof Employee employee) {
-                employees.add(employee);
+            ArrayList<Person> peopleList = parsePersonList(employeeData);
+            // LVTI - type inferred while iterating for loop
+            for(var person : peopleList) {
+                // Pattern Matching for the instanceof Operator
+                if(person instanceof Employee employee) {
+                    employees.add(employee);
+                }
             }
-        }
         }
         return employees;
     }

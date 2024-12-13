@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static java.lang.System.exit;
-import static java.lang.System.in;
 
 public class SystemMenu {
     static Scanner sc = new Scanner(System.in);
@@ -255,7 +254,8 @@ public class SystemMenu {
                                 // email is effectively final here, variable used in lambda needs to be final or
                                 // effectively final, it's accessed but never modified.
                                 String email = getInput();
-                                person.retrieveAllReservations().stream().filter(r -> email.equals(r.getEmail())).forEach(System.out::println);
+                                person.retrieveAllReservations().stream().filter(
+                                        r -> email.equals(r.getEmail())).forEach(System.out::println);
                                 break;
                             case "4":
                                 System.out.println("Cancelled reservations:");
@@ -267,7 +267,8 @@ public class SystemMenu {
                                 System.out.println("Completed stays:");
                                 Predicate<Reservation> completedPredicate = Reservation::isCompleted;
                                 // method reference used to filter reservations for those which are completed
-                                person.retrieveAllReservations().stream().filter(completedPredicate::test).forEach(System.out::println);
+                                person.retrieveAllReservations().stream()
+                                        .filter(completedPredicate::test).forEach(System.out::println);
                                 break;
                         }
                     } else {
@@ -285,8 +286,8 @@ public class SystemMenu {
         String input = displayYesNoQuestion("Are you sure you want to cancel this reservation? Y/N");
         if(input.equalsIgnoreCase("y")) {
             Reservation reservation1 = DataFileParser.parseReservationData(reservation);
-            // Runtime Polymorphism (Dynamic Method Dispatch) - this method is overridden from person class and which version of
-            // it is used depends on object type that calls it at runtime
+            // Runtime Polymorphism (Dynamic Method Dispatch) - this method is overridden from person class
+            // and which version of it is used depends on object type that calls it at runtime
             person.cancelReservation(reservation1);
         } else {
             System.out.println("Aborting. Back to main menu....");

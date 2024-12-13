@@ -1,6 +1,7 @@
 package pricing;
 
 import java.text.NumberFormat;
+import java.util.Arrays;
 import java.util.Locale;
 
 public interface PricingStrategy {

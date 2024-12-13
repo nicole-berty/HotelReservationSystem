@@ -58,6 +58,7 @@ public class Reservation {
         this.checkedIn = checkedIn;
         this.reservationId = reservationId;
         this.depositPaid = depositPaid;
+        // defensive copy of creationDate
         this.creationDate = creationDate == null ? null : new Date(creationDate.getTime());
         this.cancellationDate = cancellationDate;
     }
@@ -78,7 +79,6 @@ public class Reservation {
         this.refundable = refundable;
         this.checkInDate = checkInDate == null ? null :  new Date(checkInDate.getTime());
         this.hotelName = HotelSystem.getInstance().getSelectedHotel().getName();
-        // defensive copy of date
         this.creationDate =  new Date();
         calculateTotalCost();
     }

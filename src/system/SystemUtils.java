@@ -67,7 +67,7 @@ public class SystemUtils {
 
     public static List<String> readAndSearchFile(String fileName, String searchValue) {
         try (Stream<String> stream = Files.lines(Paths.get(fileName))) {
-            // LVT1 => local variable type inferred
+            // LVTI => local variable type inferred
             var result = stream.filter(line -> Arrays.asList(line.split("\\|")).contains(searchValue)).findFirst();
             return Arrays.asList(result.orElse("").split("\\|"));
         } catch (IOException e) {
@@ -140,7 +140,7 @@ public class SystemUtils {
         File credentialsFile = SystemUtils.getOrCreateFile(HotelSystem.getInstance().dataFiles.get("credentials").path());
         if(credentialsFile != null) {
             // data is a list of (email, password, hotel, Person) from the credentials csv file or null if credentials not found
-            // LVT1 => local variable type inferred here
+            // LVTI => local variable type inferred here
             var data = readAndSearchFile(credentialsFile.getPath(), email);
             // Unchecked exceptions possible here - avoid NullPointerException and ArrayIndexOutOfBoundsException by
             // checking nullity and list length before attempting access

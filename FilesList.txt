@@ -7,9 +7,15 @@ src\people\Employee.java
 src\people\HotelManager.java
 src\people\HotelReceptionist.java
 src\people\Person.java
-src\reservations\HotelStay.java
+src\pricing\CorporatePricingStrategy.java
+src\pricing\PricingStrategy.java
+src\pricing\PromotionalDiscountStrategy.java
+src\pricing\RegularPricingStrategy.java
+src\pricing\SeasonalPricingStrategy.java
 src\reservations\Reservation.java
+src\reservations\ReservationType.java
 src\system\DataFileParser.java
+src\system\FileDetails.java
 src\system\HotelSystem.java
 src\system\SystemMenu.java
 src\system\SystemUtils.java

@@ -117,7 +117,7 @@ public class Reservation {
     }
 
     public double calculateDeposit() {
-        return this.totalCost * 0.05;
+        return Math.ceil(this.totalCost * 0.05);
     }
 
     public double calculateRemainingCost() {

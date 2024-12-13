@@ -248,15 +248,15 @@ public class SystemMenu {
                             case "2":
                                 System.out.println("Enter a date in the format YYYY-MM-DD.");
                                 Date selectedDate = getValidDate();
-                                System.out.println(HotelSystem.getInstance().dataFiles.get("reservations").headers());
+                                System.out.print(HotelSystem.getInstance().dataFiles.get("reservations").headers());
                                 person.retrieveAllReservations().stream().filter(r -> r.getCheckInDate() == selectedDate).forEach(System.out::println);
                                 break;
                             case "3":
                                 System.out.println("Enter the email you want to get reservations for.");
-                                System.out.print(HotelSystem.getInstance().dataFiles.get("reservations").headers());
                                 // email is effectively final here, variable used in lambda needs to be final or
                                 // effectively final, it's accessed but never modified.
                                 String email = getInput();
+                                System.out.print(HotelSystem.getInstance().dataFiles.get("reservations").headers());
                                 person.retrieveAllReservations().stream().filter(
                                         r -> email.equals(r.getEmail())).forEach(System.out::println);
                                 break;

@@ -242,15 +242,18 @@ public class SystemMenu {
                         }
                         switch (userInput) {
                             case "1":
+                                System.out.print(HotelSystem.getInstance().dataFiles.get("reservations").headers());
                                 person.retrieveAllReservations().forEach(System.out::println);
                                 break;
                             case "2":
                                 System.out.println("Enter a date in the format YYYY-MM-DD.");
                                 Date selectedDate = getValidDate();
+                                System.out.println(HotelSystem.getInstance().dataFiles.get("reservations").headers());
                                 person.retrieveAllReservations().stream().filter(r -> r.getCheckInDate() == selectedDate).forEach(System.out::println);
                                 break;
                             case "3":
                                 System.out.println("Enter the email you want to get reservations for.");
+                                System.out.print(HotelSystem.getInstance().dataFiles.get("reservations").headers());
                                 // email is effectively final here, variable used in lambda needs to be final or
                                 // effectively final, it's accessed but never modified.
                                 String email = getInput();
@@ -259,12 +262,14 @@ public class SystemMenu {
                                 break;
                             case "4":
                                 System.out.println("Cancelled reservations:");
+                                System.out.print(HotelSystem.getInstance().dataFiles.get("reservations").headers());
                                 // predicate used to filter reservations for those which were cancelled
                                 Predicate<Reservation> cancellationPredicate = Reservation::isCancelled;
                                 person.retrieveAllReservations().stream().filter(cancellationPredicate).forEach(System.out::println);
                                 break;
                             case "5":
                                 System.out.println("Completed stays:");
+                                System.out.print(HotelSystem.getInstance().dataFiles.get("reservations").headers());
                                 Predicate<Reservation> completedPredicate = Reservation::isCompleted;
                                 // method reference used to filter reservations for those which are completed
                                 person.retrieveAllReservations().stream()
@@ -273,6 +278,7 @@ public class SystemMenu {
                         }
                     } else {
                         System.out.println("Reservations found for this email shown below.");
+                        System.out.print(HotelSystem.getInstance().dataFiles.get("reservations").headers());
                         person.retrieveAllReservations().stream().filter(r -> Objects.equals(r.getEmail(), person.getEmail())).forEach(System.out::println);
                     }
                     break;

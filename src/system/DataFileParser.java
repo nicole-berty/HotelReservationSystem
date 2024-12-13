@@ -63,7 +63,7 @@ public class DataFileParser {
         String roomTypeCosts = fields[3];
         String roomsList = fields[4];
         String personData = fields[5];
-        PricingStrategy pricingStrategy = PricingStrategy.fromString(fields[6]);
+        PricingStrategy pricingStrategy = PricingStrategy.fromString(fields[6].trim());
 
         // Parse Room Types and Costs, and Rooms and Employees lists
         EnumMap<RoomType, Double> roomTypeCostMap = parseRoomTypeCosts(roomTypeCosts);

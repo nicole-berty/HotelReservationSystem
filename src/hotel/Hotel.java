@@ -32,9 +32,9 @@ public class Hotel {
         this.name = name;
         this.numRooms = numRooms;
         this.openDate = openDate;
-        this.roomTypes = roomTypes;
-        this.rooms = rooms;
-        this.employees = employees;
+        this.roomTypes = new EnumMap<>(roomTypes);
+        this.rooms = new ArrayList<>(rooms);
+        this.employees = new ArrayList<>(employees);
         this.pricingStrategy = pricingStrategy;
     }
 

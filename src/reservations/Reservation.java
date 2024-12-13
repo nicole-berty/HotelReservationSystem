@@ -25,7 +25,7 @@ public class Reservation {
     private Date creationDate;
     private Date cancellationDate = null;
     private EnumMap<RoomType, Integer> roomsReserved;
-    private boolean paid = false;
+    private boolean paid;
     private boolean completed = false;
     private PricingStrategy pricingStrategy;
     private boolean checkedIn;
@@ -58,6 +58,7 @@ public class Reservation {
         this.checkedIn = checkedIn;
         this.reservationId = reservationId;
         this.depositPaid = depositPaid;
+        this.creationDate = creationDate == null ? null : new Date(creationDate.getTime());
         this.cancellationDate = cancellationDate;
     }
 
@@ -75,10 +76,10 @@ public class Reservation {
         this.name = name;
         this.email = email;
         this.refundable = refundable;
-        this.checkInDate = new Date(checkInDate.getTime());
+        this.checkInDate = checkInDate == null ? null :  new Date(checkInDate.getTime());
         this.hotelName = HotelSystem.getInstance().getSelectedHotel().getName();
         // defensive copy of date
-        this.creationDate = new Date(creationDate.getTime());
+        this.creationDate =  new Date();
         calculateTotalCost();
     }
 
@@ -94,6 +95,7 @@ public class Reservation {
             cost *= 0.95;
         }
         this.totalCost = pricingStrategy.calculatePrice(cost) + pricingStrategy.calculateAdditionalCosts(additionalCosts);
+        setDepositPaid(totalCost * 0.1);
     }
 
     public double getTotalCost() {
@@ -152,7 +154,7 @@ public class Reservation {
 
     public Date getCheckInDate() {
         // defensive copy before returning check in date
-        return new Date(checkInDate.getTime());
+        return checkInDate == null ? null : new Date(checkInDate.getTime());
     }
 
     public String getEmail() {

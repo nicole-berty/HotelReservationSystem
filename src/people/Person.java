@@ -49,7 +49,7 @@ sealed public abstract class Person permits Customer, Employee {
         System.out.println(STR."The pricing strategy currently in place is \{pricingStrategy}");
 
         if(!paid) {
-            System.out.println("You must pay a 10% deposit today for the booking.");
+            System.out.println("You must pay an approx 10% deposit today for the booking.");
             reservation.setDepositPaid(reservation.calculateDeposit());
         }
         System.out.println(STR."The total reservation cost is \{reservation.getTotalCost()}.\nThe non refundable deposit is \{reservation.getDepositPaid()} and the remaining balance to be paid is \{reservation.calculateRemainingCost()}");
@@ -69,6 +69,6 @@ sealed public abstract class Person permits Customer, Employee {
 
     @Override
     public String toString() {
-        return STR."Person{name='\{name}', email='\{email}, '";
+        return STR."Person{name='\{name}', email='\{email}', ";
     }
 }

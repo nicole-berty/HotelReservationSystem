@@ -96,7 +96,6 @@ public class SystemMenu {
                     displayMainMenu(employee);
                     break;
                 case "2":
-                    System.out.println("Enter the reservation number:");
                     String reservation = findReservation();
                     if (!reservation.isBlank()) {
                         Reservation reservation1 = DataFileParser.parseReservationData(reservation);
@@ -157,6 +156,7 @@ public class SystemMenu {
                         System.out.println(STR."Which pricing strategy would you like the hotel to use from now on? \nIt currently uses the \{hotel1.getPricingStrategy()} strategy.");
                         System.out.println("(1) Regular Pricing (2) Promotional Pricing (3) Corporate Pricing (4) Seasonal Pricing");
                         List<String> newValidOptions = getOptions(4);
+                        userInput = getInput();
                         while (!newValidOptions.contains(userInput.toLowerCase())) {
                             System.out.println("Please enter a valid option!");
                             userInput = getInput();
@@ -189,24 +189,23 @@ public class SystemMenu {
     private static String findReservation() {
         System.out.println("Enter the reservation number you're looking for.");
         String userInput = getInput();
-        String reservation = Optional.ofNullable(SystemUtils.readAndSearchFile(HotelSystem.getInstance().dataFiles.get("reservations").path(), userInput))
-                .orElse(List.of()) // Provide a default empty list in case method returned null
-                .stream()
-                .filter(Objects::nonNull)
-                .collect(Collectors.joining("|"));
-        while (reservation.isEmpty()) {
+        boolean foundReservation;
+        var data = SystemUtils.readAndSearchFile(HotelSystem.getInstance().dataFiles.get("reservations").path(), userInput);
+        foundReservation = data != null && !data.isEmpty() && data.getFirst().equals(userInput);
+        while (!foundReservation) {
             System.out.println("Reservation not found! Please try again, or press b to go back or q to quit.");
             userInput = getInput();
             if(userInput.equalsIgnoreCase("b")) {
                 return "";
             }
-            reservation = Optional.ofNullable(SystemUtils.readAndSearchFile(HotelSystem.getInstance().dataFiles.get("reservations").path(), userInput))
-                    .orElse(List.of()) // Provide a default empty list in case method returned null
-                    .stream()
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.joining("|"));
+            data = SystemUtils.readAndSearchFile(HotelSystem.getInstance().dataFiles.get("reservations").path(), userInput);
+            foundReservation = data != null && !data.isEmpty() && data.getFirst().equals(userInput);
         }
-        return reservation;
+        return Optional.ofNullable(data)
+                .orElse(List.of()) // Provide a default empty list in case method returned null
+                .stream()
+                .filter(Objects::nonNull)
+                .collect(Collectors.joining("|"));
     }
 
     public static void displayMainMenu(Person person) {

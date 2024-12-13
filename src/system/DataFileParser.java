@@ -42,11 +42,13 @@ public class DataFileParser {
         boolean complete = Boolean.parseBoolean(fields[15]);
         PricingStrategy pricingStrategy = PricingStrategy.fromString(fields[16]);
         boolean checkedIn = Boolean.parseBoolean(fields[17]);
-        String[] addCostsArr = fields[18].replace("{", "").replace("}", "").trim().split(",");
+        String[] addCostsArr = fields[18].replace("[", "").replace("]", "").trim().split(",");
         int[] additionalCosts = new int[addCostsArr.length];
 
         for (int i = 0; i < addCostsArr.length; i++) {
-            additionalCosts[i] = Integer.parseInt(addCostsArr[i]);
+            if(!addCostsArr[i].isBlank()) {
+                additionalCosts[i] = Integer.parseInt(addCostsArr[i]);
+            }
         }
 
         return new Reservation(reservationId, name, email, advancedPurchase, hotelName, refundable, checkIn, numNights,

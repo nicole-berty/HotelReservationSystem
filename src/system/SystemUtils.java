@@ -82,9 +82,9 @@ public class SystemUtils {
         for(int i = 1; i < fileContents.size(); i++) {
             Hotel hotel = DataFileParser.parseHotelData(fileContents.get(i));
             if(hotel.getName().equals(updatedHotel.getName())) {
-                hotel = new Hotel(hotel);
+                hotel = new Hotel(updatedHotel);
             }
-            hotels.append(hotel);
+            hotels.append(hotel.toCsvString());
             // append new line on each line except the last one to avoid unnecessary whitespace in file
             if(i != fileContents.size() - 1) {
                 hotels.append("\n");

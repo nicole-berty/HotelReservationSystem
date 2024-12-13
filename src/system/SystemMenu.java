@@ -7,9 +7,11 @@ import people.Customer;
 import people.Employee;
 import people.HotelManager;
 import people.Person;
+import reservations.Reservation;
 
 import java.text.ParseException;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static java.lang.System.exit;
@@ -53,7 +55,11 @@ public class SystemMenu {
                 Employee employee = login();
                 // Control will only reach this point if login was successful, as login contains a loop that is only broken by
                 // successfully logging in or entering Q to exit the program
-                displayMainMenu(employee);
+                if(employee instanceof HotelManager) {
+                    displayMainManagerMenu((HotelManager) employee);
+                } else {
+                    displayMainMenu(employee);
+                }
                 break;
             case "2":
                 System.out.println("Welcome! Please enter your name: ");
@@ -68,6 +74,55 @@ public class SystemMenu {
                 HotelSystem.getInstance().setCurrentUser(null);
                 displayHotelSelectionMenu();
                 break;
+        }
+    }
+
+    public static void displayMainManagerMenu(HotelManager manager) {
+        //noinspection InfiniteLoopStatement - false positive warning, we only want to exit if user input is q
+        while(true) {
+            List<String> validValues = getOptions(3);
+            System.out.println("Enter the option you would like to access or press q to exit.");
+            System.out.println("(1) Reservations & Cancellations");
+            System.out.println("(2) Apply Discount");
+            System.out.println("(3) View Reservations");
+            System.out.println("(q) Exit");
+            String userInput = getInput();
+            while (!validValues.contains(userInput.toLowerCase())) {
+                System.out.println("Please enter a valid option!");
+                userInput = getInput();
+            }
+            outerSwitch: // label for the switch so can break out of it in loop later
+            switch (userInput.toLowerCase()) {
+                case "1":
+                    displayMainMenu(manager);
+                    break;
+                case "2":
+                    System.out.println("Enter the reservation number you'd like to apply the discount to.");
+                    userInput = getInput();
+                    String reservation = Optional.ofNullable(SystemUtils.readAndSearchFile(HotelSystem.getInstance().dataFiles.get("reservations").path(), userInput))
+                            .orElse(List.of()) // Provide a default empty list in case method returned null
+                            .stream()
+                            .filter(Objects::nonNull)
+                            .collect(Collectors.joining("|"));
+                    while (reservation.isEmpty()) {
+                        System.out.println("Reservation not found! Please try again, or press b to go back or q to quit.");
+                        userInput = getInput();
+                        if(userInput.equalsIgnoreCase("b")) {
+                            break outerSwitch;
+                        }
+                        reservation = Optional.ofNullable(SystemUtils.readAndSearchFile(HotelSystem.getInstance().dataFiles.get("reservations").path(), userInput))
+                                .orElse(List.of()) // Provide a default empty list in case method returned null
+                                .stream()
+                                .filter(Objects::nonNull)
+                                .collect(Collectors.joining("|"));
+                    }
+                    Reservation reservation1 = DataFileParser.parseReservationData(reservation);
+                    System.out.println(STR."The total cost of this reservation is \{reservation1.getTotalCost()}.");
+                    System.out.println("How much of a % discount would you like to apply?");
+                    double discount = getNumberInput("Please enter a number greater than 0.", false);
+                    manager.giveDiscount(reservation1, discount);
+                    break;
+            }
         }
     }
 
@@ -176,7 +231,7 @@ public class SystemMenu {
 
     private static Employee login() {
         while(true) {
-            Employee employee = (Employee) inputAndCheckCredentials();
+            Employee employee = inputAndCheckCredentials();
             if (employee != null) {
                 HotelSystem.getInstance().setCurrentUser(employee);
                 System.out.println("You have successfully logged in!");

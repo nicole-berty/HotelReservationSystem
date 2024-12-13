@@ -34,8 +34,7 @@ sealed public abstract class Person permits Customer, Employee {
         }
         System.out.println(STR."The total reservation cost is \{reservation.getTotalCost()}.\nThe deposit is \{reservation.getDepositPaid()} and the remaining balance to be paid is \{reservation.calculateRemainingCost()}");
         System.out.println(STR."Your reservation number is \{reservation.getReservationId()}.");
-        SystemUtils.addHeaders(HotelSystem.reservationsFileName, "Reservation Id|Name|Email|Type|Hotel|Refundable|Check In|Num Nights|Total Cost|Deposit|Creation Date|Cancellation Date|Rooms Reserved|Paid");
-        SystemUtils.writeToFile(HotelSystem.reservationsFileName, reservation.toString());
+        SystemUtils.writeToFile(HotelSystem.getInstance().dataFiles.get("reservations"), reservation.toString());
     }
 
     @Override

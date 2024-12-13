@@ -8,6 +8,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -56,14 +57,10 @@ public class SystemUtils {
         }
     }
 
-    public static boolean addHeaders(String fileName, String headers) {
-        int lineCount = SystemUtils.getNumLinesInFile(fileName);
-        // if less than 1 line in the file, there's no headers so add them and return true to indicate headers were added
-        if(lineCount < 1) {
-            SystemUtils.writeToFile(fileName, headers);
-            return true;
-        }
-        return false;
+    public static boolean isMissingHeaders(String filePath) {
+        int lineCount = SystemUtils.getNumLinesInFile(filePath);
+        // if less than 1 line in the file, there's no headers
+        return lineCount < 1;
     }
 
     public static List<String> readAndSearchFile(String fileName, String searchValue) {
@@ -77,29 +74,36 @@ public class SystemUtils {
     }
 
     // overloaded writeToFile method to default the append value to true
-    public static boolean writeToFile(String fileName, String data) {
-        return writeToFile(fileName, data, true);
+    public static boolean writeToFile(FileDetails fileDetails, String data) {
+        return writeToFile(fileDetails, data, true);
     }
 
-    public static boolean writeToFile(String fileName, String data, boolean append) {
-        if(getOrCreateFile(fileName) != null) {
-        // try-with-resources statement means we don't need to close the resources
-        try(PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(fileName, append)))) {
-            out.println(data);
-            return true;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public static boolean writeToFile(FileDetails fileDetails, String data, boolean append) {
+        if(getOrCreateFile(fileDetails.path()) != null) {
+            String dataWithHeaders = "";
+            // if the file is missing headers or if we're going to overwrite instead of append, add headers to data
+            if(isMissingHeaders(fileDetails.path()) || !append) {
+                dataWithHeaders = fileDetails.headers() + data;
+            } else {
+                dataWithHeaders = data;
+            }
+            // try-with-resources statement means we don't need to close the resources
+            try(PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(fileDetails.path(), append)))) {
+                out.println(dataWithHeaders);
+                return true;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         return false;
     }
 
     public static Employee validateAndGetEmployee(String email, String password) {
-        File credentialsFile = SystemUtils.getOrCreateFile(HotelSystem.hotelCredentials);
+        File credentialsFile = SystemUtils.getOrCreateFile(HotelSystem.getInstance().dataFiles.get("credentials").path());
         if(credentialsFile != null) {
             // data is a list of (email, password, hotel, Person) from the credentials csv file or null if credentials not found
             // LVT1 => local variable type inferred here
-            var data = readAndSearchFile(HotelSystem.hotelCredentials, email);
+            var data = readAndSearchFile(credentialsFile.getPath(), email);
             // Unchecked exceptions possible here - avoid NullPointerException and ArrayIndexOutOfBoundsException by
             // checking nullity and list length before attempting access
             if(data != null && data.size() > 2 && email.equals(data.get(0)) && password.equals(data.get(1))
@@ -122,6 +126,15 @@ public class SystemUtils {
 
     public static String getDateStringOrNull(Date date) {
         return date == null ? null : getDateFormat().format(date);
+    }
+
+    public static Date getFormattedDateOrNull(String date) {
+        try {
+            return getDateFormat().parse(date);
+        } catch (ParseException _) {
+
+        }
+        return null;
     }
 
     public static DateFormat getDateFormat() {

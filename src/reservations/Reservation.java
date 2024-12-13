@@ -14,7 +14,7 @@ public class Reservation {
     private String reservationId;
     private String name;
     private String email;
-    private ReservationType reservationType;
+    private final ReservationType reservationType;
     private String hotelName;
     private boolean refundable;
     private Date checkInDate;
@@ -29,6 +29,20 @@ public class Reservation {
     private boolean paid = false;
     private boolean completed = false;
     private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+
+    public Reservation(String reservationId, String name, String email, boolean advancedPurchase, String hotelName,
+                       boolean refundable, Date checkInDate, int numNights, double totalCost, double depositPaid,
+                       Date creationDate, Date cancellationDate, EnumMap<RoomType, Integer> roomsReserved,
+                       boolean paid) {
+        this(name, email, advancedPurchase, refundable, checkInDate, numNights, roomsReserved, paid);
+        this.totalCost = totalCost;
+        this.depositPaid = depositPaid;
+        this.creationDate = creationDate;
+        this.cancellationDate = cancellationDate;
+        this.hotelName = hotelName;
+        this.reservationId = reservationId;
+    }
 
     public Reservation(String name, String email, boolean advancedPurchase, boolean refundable, Date checkInDate,
                        int numNights, EnumMap<RoomType, Integer> roomsReserved, boolean paid) {
@@ -65,6 +79,12 @@ public class Reservation {
 
     public double getTotalCost() {
         return totalCost;
+    }
+
+    public void setTotalCost(double totalCost) {
+        if(totalCost > 0) {
+            this.totalCost = totalCost;
+        }
     }
 
     public void setDepositPaid(double depositPaid) {
@@ -105,7 +125,7 @@ public class Reservation {
 
     @Override
     public String toString() {
-        StringBuilder roomsReservedSb = new StringBuilder("{");
+        StringBuilder roomsReservedSb = new StringBuilder();
         for(var roomReserved : roomsReserved.entrySet()) {
             roomsReservedSb.append(STR."\{roomReserved.getKey()}:\{roomReserved.getValue()},");
         }
@@ -117,25 +137,3 @@ public class Reservation {
 
 }
 
-enum ReservationType {
-    STANDARD, ADVANCE_PURCHASE;
-
-    @Override
-    public String toString()
-    {
-        return switch (this.ordinal()) {
-            case 0 -> "Standard";
-            case 1 -> "Advance Purchase";
-            default -> "";
-        };
-    }
-
-    public static ReservationType fromString(String text) {
-        for (ReservationType b : ReservationType.values()) {
-            if (b.toString().equalsIgnoreCase(text)) {
-                return b;
-            }
-        }
-        return null;
-    }
-}

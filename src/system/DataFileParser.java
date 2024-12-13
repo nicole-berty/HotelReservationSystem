@@ -4,23 +4,49 @@ import hotel.Hotel;
 import hotel.Room;
 import hotel.RoomType;
 import people.*;
+import reservations.Reservation;
+import reservations.ReservationType;
 
-import java.text.ParseException;
 import java.util.*;
 import java.util.regex.*;
 
 public class DataFileParser {
 
-    public static Hotel parseHotelData(String file) {
+    public static Reservation parseReservationData(String fileLine) {
 
-        String[] fields = file.split("\\|");
-        String hotelName = fields[0];
-        Date date = null;
-        try {
-            date = SystemUtils.getDateFormat().parse(fields[1]);
-        } catch (ParseException _) {
-            
+        String[] fields = fileLine.split("\\|");
+        String reservationId = fields[0].trim();
+        String name = fields[1].trim();
+        String email = fields[2].trim();
+        boolean advancedPurchase = ReservationType.fromString(fields[3]) == ReservationType.ADVANCE_PURCHASE;
+        String hotelName = fields[4].trim();
+        boolean refundable = Boolean.parseBoolean(fields[5]);
+
+        Date checkIn = SystemUtils.getFormattedDateOrNull(fields[6]);
+        int numNights = Integer.parseInt(fields[7].trim());
+        double totalCost = Double.parseDouble(fields[8].trim());
+        double deposit = Double.parseDouble(fields[9].trim());
+        Date creationDate = SystemUtils.getFormattedDateOrNull(fields[10]);
+        Date cancellationDate = SystemUtils.getFormattedDateOrNull(fields[11]);
+
+        List<String> roomsList = List.of(fields[12].split(","));
+        EnumMap<RoomType, Integer> roomsReserved = new EnumMap<>(RoomType.class);
+        for(var roomReserved : roomsList) {
+            // roomReserved looks like Single Room (1 Single Bed):2 so room split will be an array of ["Single Room (1 Single Bed)", "2"]
+            var roomSplit = roomReserved.split(":");
+            roomsReserved.put(RoomType.fromString(roomSplit[0]), Integer.parseInt(roomSplit[1].trim()));
         }
+        boolean paid = Boolean.parseBoolean(fields[13]);
+
+        return new Reservation(reservationId, name, email, advancedPurchase, hotelName, refundable, checkIn, numNights,
+                totalCost, deposit, creationDate, cancellationDate, roomsReserved, paid);
+    }
+
+    public static Hotel parseHotelData(String fileLine) {
+
+        String[] fields = fileLine.split("\\|");
+        String hotelName = fields[0];
+        Date date = SystemUtils.getFormattedDateOrNull(fields[1]);
         int roomsAvailable = Integer.parseInt(fields[2].trim());
         String roomTypeCosts = fields[3];
         String roomsList = fields[4];

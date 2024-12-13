@@ -1,3 +1,5 @@
-Reservation Id, Name, Email, Type, Hotel, Refundable, Check In, Num Nights, Total Cost, Deposit, Creation Date, Cancellation Date, Rooms Reserved, Paid
-aLZycuErL|n|n|Advance Purchase|Miggy's Motel|true|2024-12-19|3|1710.0|0.0|2024-12-12|null|{Single Room (1 Single Bed):2,Standard Double Room:0,Triple Room (3 Single Beds):1,|true
-hWVW8sEda|n|n|Standard|Miggy's Motel|false|2024-12-14|3|0.0|0.0|2024-12-12|null|{Single Room (1 Single Bed):0,|true
+Reservation Id|Name|Email|Type|Hotel|Refundable|Check In|Num Nights|Total Cost|Deposit|Creation Date|Cancellation Date|Rooms Reserved|Paid
+hWVW8sEda|n|n|Standard|Miggy's Motel|false|2024-12-14|3|97.2|0.0|2024-12-12|null|Single Room (1 Single Bed):1,|false
+CLNW3kKpt|nicky g|nickyg@test.com|Standard|Miggy's Motel|true|2024-12-20|2|780.0|39.0|2024-12-13|null|Single Room (1 Single Bed):3,Standard Double Room:0,Triple Room (3 Single Beds):0,|false
+GE7EzxFpu|Testing 2|test@test2.com|Standard|Miggy's Motel|false|2024-12-16|2|431.0|0.0|2024-12-13|null|Single Room (1 Single Bed):2,|true
+zs1E9lC3e|blaj|blah@gmail.com|Standard|Miggy's Motel|true|2025-01-20|3|4560.0|228.0|2024-12-13|null|Single Room (1 Single Bed):4,Standard Double Room:5,|false

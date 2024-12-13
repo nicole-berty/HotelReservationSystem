@@ -47,7 +47,7 @@ public class DataFileParser {
 
         for (int i = 0; i < addCostsArr.length; i++) {
             if(!addCostsArr[i].isBlank()) {
-                additionalCosts[i] = Integer.parseInt(addCostsArr[i]);
+                additionalCosts[i] = Integer.parseInt(addCostsArr[i].trim());
             }
         }
 

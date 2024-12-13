@@ -1,13 +1,9 @@
 package people;
 
 import hotel.Hotel;
-import hotel.RoomType;
 import reservations.Reservation;
 import system.HotelSystem;
 import system.SystemUtils;
-
-import java.util.Date;
-import java.util.EnumMap;
 
 public final class HotelManager extends Employee {
     private String[] managedDepartments;

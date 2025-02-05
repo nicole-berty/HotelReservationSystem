@@ -32,7 +32,8 @@ public final class HotelManager extends Employee {
         String reservations = SystemUtils.getModifiedReservationList(reservation);
         boolean success = SystemUtils.writeToFile(HotelSystem.getInstance().dataFiles.get("reservations"), reservations, false);
         if(success) {
-            System.out.println(STR."The discount was applied and the new cost of the reservation is \{newPrice}");
+            System.out.println(STR."The discount was applied and the new cost of the reservation is €\{reservation.getPricingStrategy()
+                    .displayFormattedPrice(reservation.getTotalCost())}");
         }
     }
 

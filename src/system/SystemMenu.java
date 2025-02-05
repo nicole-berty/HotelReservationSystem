@@ -80,10 +80,11 @@ public class SystemMenu {
     public static void displayEmployeeMainMenu(Employee employee) {
         //noinspection InfiniteLoopStatement - false positive warning, we only want to exit if user input is q
         while(true) {
-            List<String> validValues = getOptions(2);
+            List<String> validValues = getOptions(3);
             System.out.println("Enter the option you would like to access or press q to exit.");
             System.out.println("(1) Reservations & Cancellations");
             System.out.println("(2) Check in / Check out");
+            System.out.println("(3) Logout");
             System.out.println("(q) Exit");
             String userInput = getInput();
             while (!validValues.contains(userInput.toLowerCase())) {
@@ -112,6 +113,9 @@ public class SystemMenu {
                         System.out.println("Reservation not found!");
                     }
                     break;
+                case "3":
+                    displayStartMenu();
+                    break;
             }
         }
     }
@@ -120,11 +124,12 @@ public class SystemMenu {
     public static void displayMainManagerMenu(HotelManager manager) {
         //noinspection InfiniteLoopStatement - false positive warning, we only want to exit if user input is q
         while(true) {
-            List<String> validValues = getOptions(3);
+            List<String> validValues = getOptions(4);
             System.out.println("Enter the option you would like to access or press q to exit.");
             System.out.println("(1) Reservations, Cancellations & Check In/out");
             System.out.println("(2) Apply Discounts");
             System.out.println("(3) Adjust Pricing Strategy");
+            System.out.println("(4) Logout");
             System.out.println("(q) Exit");
             String userInput = getInput();
             while (!validValues.contains(userInput.toLowerCase())) {
@@ -172,6 +177,9 @@ public class SystemMenu {
                         manager.changePricingStrategy(hotel1);
                     }
                     break;
+                case "4":
+                    displayStartMenu();
+                    break;
             }
         }
     }
@@ -210,11 +218,12 @@ public class SystemMenu {
     public static void displayMainMenu(Person person) {
         //noinspection InfiniteLoopStatement - false positive warning, we only want to exit if user input is q
         while(true) {
-            List<String> validValues = getOptions(3);
+            List<String> validValues = getOptions(4);
             System.out.println("Enter the option you would like to access or press q to exit.");
             System.out.println("(1) Make a reservation");
             System.out.println("(2) Make a cancellation");
             System.out.println("(3) View Reservations");
+            System.out.println("(4) Logout");
             System.out.println("(q) Exit");
             String userInput = getInput();
             while (!validValues.contains(userInput.toLowerCase())) {
@@ -281,6 +290,9 @@ public class SystemMenu {
                         System.out.print(HotelSystem.getInstance().dataFiles.get("reservations").headers());
                         person.retrieveAllReservations().stream().filter(r -> Objects.equals(r.getEmail(), person.getEmail())).forEach(System.out::println);
                     }
+                    break;
+                case "4":
+                    displayStartMenu();
                     break;
             }
         }

@@ -44,7 +44,7 @@ public class SystemMenu {
         System.out.println("Enter the option you would like to access or press q to exit.");
         System.out.println("(1) Employee Login");
         System.out.println("(2) Guest Login");
-        System.out.println("(3) Back");
+        System.out.println("(3) Go Back");
         System.out.println("(q) Exit");
 
         String userInput = getInput();
@@ -84,7 +84,7 @@ public class SystemMenu {
             System.out.println("Enter the option you would like to access or press q to exit.");
             System.out.println("(1) Reservations & Cancellations");
             System.out.println("(2) Check in / Check out");
-            System.out.println("(3) Logout");
+            System.out.printf("(3) %s%n", (employee instanceof HotelManager ? "Go Back" : "Logout"));
             System.out.println("(q) Exit");
             String userInput = getInput();
             while (!validValues.contains(userInput.toLowerCase())) {
@@ -114,7 +114,11 @@ public class SystemMenu {
                     }
                     break;
                 case "3":
-                    displayStartMenu();
+                    if(employee instanceof HotelManager) {
+                        displayMainManagerMenu((HotelManager) employee);
+                    } else {
+                        displayStartMenu();
+                    }
                     break;
             }
         }
@@ -223,7 +227,7 @@ public class SystemMenu {
             System.out.println("(1) Make a reservation");
             System.out.println("(2) Make a cancellation");
             System.out.println("(3) View Reservations");
-            System.out.println("(4) Logout");
+            System.out.println("(4) Go Back");
             System.out.println("(q) Exit");
             String userInput = getInput();
             while (!validValues.contains(userInput.toLowerCase())) {
@@ -292,7 +296,11 @@ public class SystemMenu {
                     }
                     break;
                 case "4":
-                    displayStartMenu();
+                    if(person instanceof Customer) {
+                        displayStartMenu();
+                    } else {
+                        displayEmployeeMainMenu((Employee) person);
+                    }
                     break;
             }
         }

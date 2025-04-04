@@ -9,12 +9,12 @@ import reservations.Reservation;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.format.ResolverStyle;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -162,23 +162,20 @@ public class SystemUtils {
         return null;
     }
 
-    public static String getDateStringOrNull(Date date) {
-        return date == null ? null : getDateFormat().format(date);
+    public static String getDateStringOrNull(LocalDate date) {
+        return date == null ? null : getDateFormatter().format(date);
     }
 
-    public static Date getFormattedDateOrNull(String date) {
+    public static LocalDate getFormattedDateOrNull(String date) {
         try {
-            return getDateFormat().parse(date);
-        } catch (ParseException _) {
-
+            return LocalDate.parse(date, getDateFormatter());
+        } catch (DateTimeParseException _) {
         }
         return null;
     }
 
-    public static DateFormat getDateFormat() {
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        // set DateFormat field lenient to false so invalid months will not be allowed
-        dateFormat.setLenient(false);
-        return dateFormat;
+    public static DateTimeFormatter getDateFormatter() {
+         // 'DateTimeFormatter' is lenient by default, it does not allow invalid dates
+        return DateTimeFormatter.ofPattern("uuuu-MM-dd").withResolverStyle(ResolverStyle.STRICT);
     }
 }

@@ -23,8 +23,16 @@ public class Room {
         this.guestName = guestName;
     }
 
+    public void setOccupied(boolean occupied) {
+        this.occupied = occupied;
+    }
+
     public boolean isOccupied() {
         return occupied;
+    }
+
+    public RoomType getRoomType() {
+        return roomType;
     }
 
     public int getRoomNumber() {

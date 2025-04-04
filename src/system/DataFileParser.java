@@ -8,6 +8,7 @@ import pricing.PricingStrategy;
 import reservations.Reservation;
 import reservations.ReservationType;
 
+import java.time.LocalDate;
 import java.util.*;
 import java.util.regex.*;
 
@@ -23,19 +24,22 @@ public class DataFileParser {
         String hotelName = fields[4].trim();
         boolean refundable = Boolean.parseBoolean(fields[5]);
 
-        Date checkIn = SystemUtils.getFormattedDateOrNull(fields[6]);
+        LocalDate checkIn = SystemUtils.getFormattedDateOrNull(fields[6]);
         int numNights = Integer.parseInt(fields[7].trim());
         double totalCost = Double.parseDouble(fields[8].trim());
         double deposit = Double.parseDouble(fields[9].trim());
-        Date creationDate = SystemUtils.getFormattedDateOrNull(fields[10]);
-        Date cancellationDate = SystemUtils.getFormattedDateOrNull(fields[11]);
+        LocalDate creationDate = SystemUtils.getFormattedDateOrNull(fields[10]);
+        LocalDate cancellationDate = SystemUtils.getFormattedDateOrNull(fields[11]);
 
         List<String> roomsList = List.of(fields[12].split(","));
-        EnumMap<RoomType, Integer> roomsReserved = new EnumMap<>(RoomType.class);
+        Set<Room> roomsReserved = new HashSet<>();
         for(var roomReserved : roomsList) {
-            // roomReserved looks like Single Room (1 Single Bed):2 so room split will be an array of ["Single Room (1 Single Bed)", "2"]
-            var roomSplit = roomReserved.split(":");
-            roomsReserved.put(RoomType.fromString(roomSplit[0]), Integer.parseInt(roomSplit[1].trim()));
+            // roomReserved looks like Room 301: Triple Room (3 Single Beds) so room split will be an array of ["Single Room (1 Single Bed)", "2"]
+            var roomNum = roomReserved.split(":")[0].replace("Room ", "");
+            Room room =HotelSystem.getInstance().getSelectedHotel().getRoomByNumber(Integer.parseInt(roomNum));
+            if(room != null) {
+                roomsReserved.add(room);
+            }
         }
         boolean paid = Boolean.parseBoolean(fields[13]);
         boolean cancelled = Boolean.parseBoolean(fields[14]);
@@ -60,7 +64,7 @@ public class DataFileParser {
 
         String[] fields = fileLine.split("\\|");
         String hotelName = fields[0];
-        Date date = SystemUtils.getFormattedDateOrNull(fields[1]);
+        LocalDate date = SystemUtils.getFormattedDateOrNull(fields[1]);
         int roomsAvailable = Integer.parseInt(fields[2].trim());
         String roomTypeCosts = fields[3];
         String roomsList = fields[4];

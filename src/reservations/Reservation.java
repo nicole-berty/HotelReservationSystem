@@ -1,14 +1,15 @@
 package reservations;
 
-import hotel.RoomType;
+import hotel.Room;
 import pricing.PricingStrategy;
 import system.HotelSystem;
 import system.SystemUtils;
 
 import java.security.SecureRandom;
+import java.time.LocalDate;
 import java.util.Arrays;
-import java.util.Date;
-import java.util.EnumMap;
+import java.util.HashSet;
+import java.util.Set;
 
 public class Reservation {
     private String reservationId;
@@ -17,14 +18,14 @@ public class Reservation {
     private final ReservationType reservationType;
     private String hotelName;
     private boolean refundable;
-    private Date checkInDate;
+    private LocalDate checkInDate;
     private int numNights;
     private double totalCost;
     private double depositPaid;
     private boolean cancelled;
-    private Date creationDate;
-    private Date cancellationDate = null;
-    private EnumMap<RoomType, Integer> roomsReserved;
+    private LocalDate creationDate;
+    private LocalDate cancellationDate = null;
+    private Set<Room> roomsReserved;
     private boolean paid;
     private boolean completed = false;
     private PricingStrategy pricingStrategy;
@@ -42,8 +43,8 @@ public class Reservation {
 
     // Reservation constructor with all 19 fields to be read from file
     public Reservation(String reservationId, String name, String email, boolean advancedPurchase, String hotelName,
-                       boolean refundable, Date checkInDate, int numNights, double totalCost, double depositPaid,
-                       Date creationDate, Date cancellationDate, EnumMap<RoomType, Integer> roomsReserved,
+                       boolean refundable, LocalDate checkInDate, int numNights, double totalCost, double depositPaid,
+                       LocalDate creationDate, LocalDate cancellationDate,  Set<Room> roomsReserved,
                        boolean paid, boolean cancelled, boolean completed, PricingStrategy pricingStrategy,
                        boolean checkedIn, int[] additionalCosts) {
         this(name, email, advancedPurchase, refundable, checkInDate, numNights, roomsReserved, paid, pricingStrategy, additionalCosts);
@@ -58,43 +59,42 @@ public class Reservation {
         this.checkedIn = checkedIn;
         this.reservationId = reservationId;
         this.depositPaid = depositPaid;
-        // defensive copy of creationDate
-        this.creationDate = creationDate == null ? null : new Date(creationDate.getTime());
+        this.creationDate = creationDate;
         this.cancellationDate = cancellationDate;
     }
 
-    public Reservation(String name, String email, boolean advancedPurchase, boolean refundable, Date checkInDate,
-                       int numNights, EnumMap<RoomType, Integer> roomsReserved, boolean paid, PricingStrategy pricingStrategy,
-            int[] additionalCosts) {
+    public Reservation(String name, String email, boolean advancedPurchase, boolean refundable, LocalDate checkInDate,
+                       int numNights,  Set<Room> roomsReserved, boolean paid, PricingStrategy pricingStrategy,
+                       int[] additionalCosts) {
         this.additionalCosts = additionalCosts;
         this.paid = paid;
         this.pricingStrategy = pricingStrategy;
         this.numNights = numNights;
-        this.roomsReserved = roomsReserved;
+        this.roomsReserved = new HashSet<>(roomsReserved); // defensive copy
         this.reservationType = advancedPurchase ? ReservationType.ADVANCE_PURCHASE : ReservationType.STANDARD;
         this.checkedIn = false;
         this.reservationId = generateReservationId();
         this.name = name;
         this.email = email;
         this.refundable = refundable;
-        this.checkInDate = checkInDate == null ? null :  new Date(checkInDate.getTime());
+        this.checkInDate = checkInDate;
         this.hotelName = HotelSystem.getInstance().getSelectedHotel().getName();
-        this.creationDate =  new Date();
+        this.creationDate = LocalDate.now();
         calculateTotalCost();
     }
 
     public void calculateTotalCost() {
         double cost = 0;
-        for(var roomType : roomsReserved.entrySet()) {
+        for(var room : roomsReserved) {
             // total cost is the cost of each room in the reservation x number of nights all added together
-            cost += (roomType.getValue() * HotelSystem.getInstance().getSelectedHotel().getRoomTypes()
-                    .get(roomType.getKey()) * numNights);
+            cost += (HotelSystem.getInstance().getSelectedHotel().getRoomTypeCostMap().get(room.getRoomType()) * numNights);
         }
         // you get 5% off total cost for advance purchase
         if(reservationType == ReservationType.ADVANCE_PURCHASE) {
             cost *= 0.95;
         }
-        this.totalCost = pricingStrategy.calculatePrice(cost) + pricingStrategy.calculateAdditionalCosts(additionalCosts);
+        var totalCost = pricingStrategy.calculatePrice(cost) + pricingStrategy.calculateAdditionalCosts(additionalCosts);
+        this.totalCost = Math.round(totalCost * 100.0) / 100.0;
         setDepositPaid(totalCost * 0.1);
     }
 
@@ -103,7 +103,7 @@ public class Reservation {
     }
 
     public void setTotalCost(double totalCost) {
-        if(totalCost > 0) {
+        if(totalCost >= 0) {
             this.totalCost = totalCost;
         }
     }
@@ -152,9 +152,12 @@ public class Reservation {
         return id.toString();
     }
 
-    public Date getCheckInDate() {
-        // defensive copy before returning check in date
-        return checkInDate == null ? null : new Date(checkInDate.getTime());
+    public LocalDate getCheckInDate() {
+        return checkInDate == null ? null : checkInDate;
+    }
+
+    public Set<Room> getRoomsReserved() {
+        return roomsReserved;
     }
 
     public String getEmail() {
@@ -173,7 +176,7 @@ public class Reservation {
         return numNights;
     }
 
-    public void setCancellationDate(Date cancellationDate) {
+    public void setCancellationDate(LocalDate cancellationDate) {
         this.cancellationDate = cancellationDate;
     }
 
@@ -189,11 +192,15 @@ public class Reservation {
         this.completed = completed;
     }
 
+    public boolean conflictsWith(LocalDate checkIn, LocalDate checkOut) {
+        return this.checkInDate.isBefore(checkOut) && (this.checkInDate.plusDays(numNights)).isAfter(checkIn);
+    }
+
     @Override
     public String toString() {
         StringBuilder roomsReservedSb = new StringBuilder();
-        for(var roomReserved : roomsReserved.entrySet()) {
-            roomsReservedSb.append(STR."\{roomReserved.getKey()}:\{roomReserved.getValue()},");
+        for(var room : roomsReserved) {
+            roomsReservedSb.append(STR."Room \{room.getRoomNumber()}: \{room.getRoomType()},");
         }
         return String.format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s", reservationId, name, email, reservationType,
                 hotelName, refundable, SystemUtils.getDateStringOrNull(checkInDate), numNights, totalCost, depositPaid,

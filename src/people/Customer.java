@@ -1,10 +1,10 @@
 package people;
 
-import hotel.RoomType;
+import hotel.Room;
 import reservations.Reservation;
 
-import java.util.Date;
-import java.util.EnumMap;
+import java.time.LocalDate;
+import java.util.Set;
 
 public final class Customer extends Person {
     private int numCompletedReservations;
@@ -29,8 +29,8 @@ public final class Customer extends Person {
     // Runtime Polymorphism (Dynamic Method Dispatch) - this method is overridden from person class and which version of
     // it is used depends on object type that calls it at runtime
     @Override
-    public void makeReservation(String name, String email, boolean advancedPurchase, boolean refundable, Date checkInDate,
-                                int numNights, EnumMap<RoomType, Integer> roomsReserved, boolean paid, int[] additionalCosts) {
+    public void makeReservation(String name, String email, boolean advancedPurchase, boolean refundable, LocalDate checkInDate,
+                                int numNights, Set<Room> roomsReserved, boolean paid, int[] additionalCosts) {
         System.out.println(STR."Customer \{getName()} making reservation...");
         // customers making their own reservation are subject to additional fees
         int[] newAdditionalCosts = {5, 10};

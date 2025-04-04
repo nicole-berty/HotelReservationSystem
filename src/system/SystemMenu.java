@@ -10,7 +10,10 @@ import people.Person;
 import pricing.PricingStrategy;
 import reservations.Reservation;
 
-import java.text.ParseException;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -64,9 +67,7 @@ public class SystemMenu {
                 }
                 break;
             case "2":
-                System.out.println("Welcome! Please enter your name: ");
-                userInput = getInput();
-                System.out.println("Enter your email: ");
+                System.out.println("Welcome! Please enter your email: ");
                 String email = getInput();
                 Customer customer = new Customer(userInput, email);
                 displayMainMenu(customer);
@@ -212,7 +213,7 @@ public class SystemMenu {
             data = SystemUtils.readAndSearchFile(HotelSystem.getInstance().dataFiles.get("reservations").path(), userInput);
             foundReservation = data != null && !data.isEmpty() && data.getFirst().equals(userInput);
         }
-        return Optional.ofNullable(data)
+        return Optional.of(data)
                 .orElse(List.of()) // Provide a default empty list in case method returned null
                 .stream()
                 .filter(Objects::nonNull)
@@ -260,7 +261,7 @@ public class SystemMenu {
                                 break;
                             case "2":
                                 System.out.println("Enter a date in the format YYYY-MM-DD.");
-                                Date selectedDate = getValidDate();
+                                LocalDate selectedDate = getValidDate();
                                 System.out.print(HotelSystem.getInstance().dataFiles.get("reservations").headers());
                                 person.retrieveAllReservations().stream().filter(r -> r.getCheckInDate() == selectedDate).forEach(System.out::println);
                                 break;
@@ -321,44 +322,87 @@ public class SystemMenu {
     }
 
     private static void createReservation(Person person) {
-        Date checkInDate = new Date();
-        long daysBetween = 0L;
-        // checkInDate must be in the future
-        while(daysBetween <= 0) {
-            System.out.println("When would you like to stay at the hotel? Please enter the date in YYYY-MM-DD format. The date must be at least 1 day in advance of today.");
-            checkInDate = getValidDate();
-            daysBetween = (checkInDate.getTime() - (new Date()).getTime())  / (24 * 60 * 60 * 1000);
+        LocalDate checkInDate = LocalDate.now();
+        long hoursBetween = 0L;
+        int numNights = 0;
+        boolean hasVacancy = false;
+        Map<RoomType, List<Room>> availableRoomsByType = new HashMap<>();
+
+        while(!hasVacancy) {
+            // checkInDate must be in the future
+            while (hoursBetween <= 24) {
+                System.out.println("When would you like to stay at the hotel? Please enter the date in YYYY-MM-DD format. The date must be at least 1 day in advance of today.");
+                checkInDate = getValidDate();
+                hoursBetween = Duration.between(LocalDateTime.now(), checkInDate.atStartOfDay()).toHours();
+            }
+
+            System.out.println("How many nights will you stay? Enter a whole number.");
+            numNights = (int) getNumberInput("Enter a whole number of nights to stay.", true);
+
+            LocalDate finalCheckInDate = checkInDate;
+            LocalDate checkOutDate = checkInDate.plusDays(numNights);
+            Set<Integer> occupiedRooms = person.retrieveAllReservations().stream()
+                    .filter(res -> res.conflictsWith(finalCheckInDate, checkOutDate))
+                    .flatMap(res -> res.getRoomsReserved().stream()) // Flatten the lists of rooms
+                    .map(Room::getRoomNumber) // Extract room numbers
+                    .collect(Collectors.toSet());
+            Predicate<Room> isAvailable = room -> !occupiedRooms.contains(room.getRoomNumber());
+            availableRoomsByType  = HotelSystem.getInstance().getSelectedHotel()
+                    .getRooms().stream()
+                    .filter(isAvailable)
+                    .collect(Collectors.groupingBy(Room::getRoomType)); // Group available rooms by type
+            int totalAvailableRooms = availableRoomsByType.values().stream()
+                    .mapToInt(List::size)
+                    .sum();
+
+            System.out.println(STR."Available rooms for these dates: \{totalAvailableRooms}");
+            hasVacancy = totalAvailableRooms > 0;
         }
 
-        System.out.println("How many nights will you stay? Enter a whole number.");
-        int numNights = (int) getNumberInput("Enter a whole number of nights to stay.", true);
+        System.out.println("How many of each room would you like to book? Enter 0 or more for each room. Only available types will be shown.");
+        Set<Room> roomsReserved = new HashSet<>();
+        List<Map.Entry<RoomType, List<Room>>> entries = new ArrayList<>(availableRoomsByType.entrySet());
+
+        for (int i = 0; i < entries.size(); i++) {
+            Map.Entry<RoomType, List<Room>> entry = entries.get(i);
+            RoomType roomType = entry.getKey();
+            List<Room> roomsOfType = entry.getValue();
+            int availableCount = roomsOfType.size();
+
+            System.out.println("How many **" + roomType + STR." - Occupancy: \{roomType.getOccupancy()} "
+                    + STR."- Cost: \{HotelSystem.getInstance().getSelectedHotel().getRoomCost(roomType)}** do you want to reserve? Available: " + availableCount);
+
+            int requestedCount = (int) getNumberInput("Enter a whole number of 0 or more", true, true);
+
+            if (requestedCount > availableCount) {
+                System.out.println(STR."Not enough rooms available! Requested: \{requestedCount}, Available: \{availableCount}");
+            } else {
+                List<Room> bookedRooms = roomsOfType.subList(0, requestedCount);
+                roomsReserved.addAll(bookedRooms);
+            }
+
+            if(i != entries.size() - 1) {
+                String userInput = displayYesNoQuestion("Would you like to see more room types? Y/N");
+                if (userInput.equalsIgnoreCase("n")) {
+                    break;
+                }
+            }
+        }
+
+        if (roomsReserved.isEmpty()) {
+            System.out.println("You didn't reserve any rooms! Going back to main menu...");
+        }
 
         System.out.println("Please enter the name for the booking: ");
         String name = getInput();
+
         System.out.println("Please enter the email for the booking: ");
         String email = getInput();
-
-        System.out.println("How many of each room would you like to book? Enter 0 or more for each room.");
-        EnumMap<RoomType, Integer> roomsReserved = new EnumMap<>(RoomType.class);
-
-        for(var roomType : HotelSystem.getInstance().getSelectedHotel().getRoomTypes().entrySet()) {
-            System.out.println("How many **" + roomType.getKey() + STR." - Occupancy: \{roomType.getKey().getOccupancy()} - Cost: \{roomType.getValue()}** do you want to reserve?");
-            int numRooms = (int) getNumberInput("Enter a whole number of 0 or more", true, true);
-            roomsReserved.put(roomType.getKey(), numRooms);
-            String userInput = displayYesNoQuestion("Would you like to see more room types? Y/N");
-            if(userInput.equalsIgnoreCase("n")) {
-                break;
-            }
-        }
-        if(roomsReserved.values().stream().allMatch(num -> num == 0)) {
-            System.out.println("You didn't reserve any rooms! Going back to main menu...");
-            return;
-        }
 
         boolean advancedPurchase = false;
         boolean refundable = false;
         boolean paid = false;
-        if(daysBetween > 5) {
+        if(hoursBetween > 120) {
             String userInput = displayYesNoQuestion("Would you like to avail of an advance purchase discount? (Y/N)\nYou will receive 5% off the cost of your reservation by paying in full today and your booking is refundable up to 5 days before arrival.");
             if(userInput.equalsIgnoreCase("y")) {
                 advancedPurchase = true;
@@ -413,22 +457,26 @@ public class SystemMenu {
 
     static String getInput() {
         String userInput = sc.nextLine();
+        while(userInput.isEmpty()) {
+            System.err.println("Please enter valid input!");
+            userInput = sc.nextLine();
+        }
         if (userInput.equalsIgnoreCase("q")) {
             exit(0);
         }
         return userInput;
     }
 
-    private static Date getValidDate() {
-        Date date;
+    private static LocalDate getValidDate() {
+        LocalDate date;
         while (true) {
             try {
                 String userInput = getInput();
-                date = SystemUtils.getDateFormat().parse(userInput);
+                date = LocalDate.parse(userInput, SystemUtils.getDateFormatter());
                 break;
                 // Checked exception ParseException may occur when parsing a date in incorrect format, e.g. 2024-20-12,
                 // must catch it or declare it in the method signature
-            } catch (ParseException e) {
+            } catch (DateTimeParseException e) {
                 System.err.println("Please enter a valid date!");
             }
         }

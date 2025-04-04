@@ -1,16 +1,16 @@
 package people;
 
-import hotel.RoomType;
+import hotel.Room;
 import pricing.PricingStrategy;
 import reservations.Reservation;
 import system.DataFileParser;
 import system.HotelSystem;
 import system.SystemUtils;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.EnumMap;
 import java.util.List;
+import java.util.Set;
 
 sealed public abstract class Person permits Customer, Employee {
     private final String name;
@@ -33,7 +33,7 @@ sealed public abstract class Person permits Customer, Employee {
     // it is used depends on object type that calls it at runtime
     public void cancelReservation(Reservation reservation) {
         reservation.setCancelled(true);
-        reservation.setCancellationDate(new Date());
+        reservation.setCancellationDate(LocalDate.now());
         String reservations = SystemUtils.getModifiedReservationList(reservation);
         boolean success = SystemUtils.writeToFile(HotelSystem.getInstance().dataFiles.get("reservations"), reservations, false);
         if(success) {
@@ -41,8 +41,8 @@ sealed public abstract class Person permits Customer, Employee {
         }
     }
 
-    public void makeReservation(String name, String email, boolean advancedPurchase, boolean refundable, Date checkInDate,
-                                int numNights, EnumMap<RoomType, Integer> roomsReserved, boolean paid, int[] additionalCosts) {
+    public void makeReservation(String name, String email, boolean advancedPurchase, boolean refundable, LocalDate checkInDate,
+                                int numNights, Set<Room> roomsReserved, boolean paid, int[] additionalCosts) {
         PricingStrategy pricingStrategy = HotelSystem.getInstance().getSelectedHotel().getPricingStrategy();
         Reservation reservation = new Reservation(name, email, advancedPurchase, refundable, checkInDate, numNights, roomsReserved, paid, pricingStrategy, additionalCosts);
         System.out.println("Note that all prices in MegaCorp(C) Hotels may be liable for additional charges or discounts seasonally or based on certain promotions.");

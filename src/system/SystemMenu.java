@@ -319,9 +319,9 @@ public class SystemMenu {
 
                                 long resCount = reservations.stream().count(); // 2 - Streams - Terminal Operations: count()
                                 Optional<Reservation> cheapestRes = reservations.stream()
-                                        .min(Comparator.comparing(Reservation::getTotalCost)); // 2 - Streams - Terminal Operations: min()
+                                        .min(Comparator.comparing(Reservation::getTotalCost)); // 2 - Streams - Terminal Operations: min(), 7 - Comparator.comparing
                                 Optional<Reservation> mostExpensiveRes = reservations.stream()
-                                        .max(Comparator.comparing(Reservation::getTotalCost)); // 2 - Streams - Terminal Operations: max()
+                                        .max(Comparator.comparing(Reservation::getTotalCost)); // 2 - Streams - Terminal Operations: max(), 7 - Comparator.comparing
                                 boolean allCompleted = reservations.stream().allMatch(res -> res.isCompleted()); // 2 - Streams - Terminal Operations: allMatch()
                                 boolean anyCancellations = reservations.stream().anyMatch(res -> res.isCancelled());  // 2 - Streams - Terminal Operations: anyMatch()
                                 boolean allRoomsAreCheap = rooms.stream().noneMatch(room -> room.getCost() > 200);  // 2 - Streams - Terminal Operations: noneMatch()

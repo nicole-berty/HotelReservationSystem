@@ -7,6 +7,7 @@ import system.SystemUtils;
 
 import java.util.Arrays;
 import java.util.function.Function;
+import java.util.function.LongToDoubleFunction;
 
 public final class HotelManager extends Employee {
     private String[] managedDepartments;
@@ -27,7 +28,8 @@ public final class HotelManager extends Employee {
     }
 
     public void giveDiscount(Reservation reservation, double discount) {
-        Function<Reservation, Double> getDiscountedPrice = res -> Math.round(res.getTotalCost() * 100 * (1 - discount / 100.0)) / 100.0; // 1 - Lambdas: Function
+        LongToDoubleFunction lToDbl = (long value) -> (double) value; // 1 - Lambdas: Function, LongToDoubleFunction
+        Function<Reservation, Double> getDiscountedPrice = res ->  lToDbl.applyAsDouble(Math.round(res.getTotalCost() * (1 - (discount / 100.0)))); // 1 - Lambdas: Function
         double newPrice = getDiscountedPrice.apply(reservation);
         reservation.setTotalCost(newPrice);
         String reservations = SystemUtils.getModifiedReservationList(reservation);

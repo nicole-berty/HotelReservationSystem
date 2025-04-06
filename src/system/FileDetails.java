@@ -5,4 +5,5 @@ package system;
  * @param path the path to the file including the file name and extension
  * @param headers the headers for the file separated by commas
  */
+// 6 - records
 public record FileDetails(String path, String headers) {}

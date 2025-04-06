@@ -2,9 +2,11 @@ package system;
 
 import hotel.Hotel;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 public class HotelSystem {
     private static HotelSystem instance = null;
@@ -24,6 +26,8 @@ public class HotelSystem {
 
     private Hotel selectedHotel;
     ArrayList<Hotel> hotels = new ArrayList<>();
+    // 1 - Lambdas: Supplier
+    public static Supplier<LocalDateTime> currentTime = LocalDateTime::now;
 
     public final Map<String, FileDetails> dataFiles = Map.of(
             "credentials", new FileDetails("./src/data/ValidCredentials.csv", "email|password|hotel|person\n"),

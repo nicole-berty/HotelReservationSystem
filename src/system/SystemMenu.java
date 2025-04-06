@@ -13,6 +13,7 @@ import reservations.Reservation;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.chrono.ChronoLocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.function.Consumer;
@@ -28,7 +29,10 @@ public class SystemMenu {
 
     public static void displayHotelSelectionMenu() {
         List<String> validValues = getOptions(HotelSystem.getInstance().hotels.size());
-        System.out.println("Welcome to the MegaCorp(C) Hotels system!\nPlease select the hotel you want to access or press q to exit.");
+        System.out.println(STR."""
+            Welcome to the MegaCorp(C) Hotels system!
+            Please select the hotel you want to access or press q to exit.
+            Current time: \{SystemUtils.getDateStringOrNull(HotelSystem.currentTime.get())}""");
 
         for(int i = 0; i < HotelSystem.getInstance().hotels.size(); i++) {
             System.out.println(STR."(\{validValues.get(i)}) \{HotelSystem.getInstance().hotels.get(i).getName()}");
@@ -253,7 +257,7 @@ public class SystemMenu {
                     }
                     break;
                 case "3":
-                    // 1 - Lambdas - Function
+                    // 1 - Lambdas: Function
                     Function<Reservation, String> reservationSummary = res ->
                             STR."Reservation ID: \{res.getReservationId()} | Total Cost: €\{String.format("%.2f", res.getTotalCost())} | Check In Date: \{res.getCheckInDate().toString()} Email: \{res.getEmail()} | Rooms\{res.getReservedRoomCounts()}";
                     Function<Room, String> roomSummary = room ->
@@ -306,7 +310,11 @@ public class SystemMenu {
                                 break;
                             case "6":
                                 var reservations = person.retrieveAllReservations();
-                                var reservationsLastMonth = reservations.stream().filter(r -> r.getCheckInDate().isBefore(LocalDate.now()) && r.getCheckInDate().isAfter(LocalDate.now().minusMonths(1))).toList();
+                                var reservationsLastQuarter = reservations.stream()
+                                        .filter(r -> r.getCheckInDate()
+                                                .isBefore(ChronoLocalDate.from(HotelSystem.currentTime.get())) && r.getCheckInDate() // 1 - Lambdas: Supplier to get current time
+                                                .isAfter(ChronoLocalDate.from(HotelSystem.currentTime.get().minusMonths(3)))) // 5 - Date/Time API
+                                        .toList();
                                 var rooms = HotelSystem.getInstance().getSelectedHotel().getRooms();
 
                                 long resCount = reservations.stream().count(); // 2 - Streams - Terminal Operations: count()
@@ -321,7 +329,7 @@ public class SystemMenu {
                                         .collect(Collectors.partitioningBy(room -> room.getCost() > 200));  // 2 - Streams - Terminal Operations: Collectors.partitioningBy()
                                 Predicate<Room> isOccupiedPredicate = Room::isOccupied;
                                 Optional<Room> availableRoom = rooms.stream()
-                                        .filter(Predicate.not(isOccupiedPredicate))  // 1 - Lambdas - Predicate, negation, 2 - Streams - Intermediate Operations: filter()
+                                        .filter(Predicate.not(isOccupiedPredicate))  // 1 - Lambdas: Predicate, negation, 2 - Streams - Intermediate Operations: filter()
                                         .findAny();  // 2 - Streams - Terminal Operations: findAny() returns any available room
 
                                 Map<String, Integer> emailToReservationCount = reservations.stream()
@@ -332,7 +340,7 @@ public class SystemMenu {
                                         ));
 
                                 // Extract and filter distinct room types from last month's reservations
-                                List<RoomType> uniqueRoomTypes = reservationsLastMonth.stream()
+                                List<RoomType> uniqueRoomTypes = reservationsLastQuarter.stream()
                                         .flatMap(res -> res.getRoomsReserved().stream())
                                         .map(Room::getRoomType)
                                         .distinct() // 2 - Streams - Terminal Operations: distinct()
@@ -355,7 +363,7 @@ public class SystemMenu {
                                 System.out.println("Cheap rooms: ");
                                 partitioned.get(false).stream().map(roomSummary).forEach(System.out::println);
 
-                                System.out.println("Unique room types reserved last month: " + uniqueRoomTypes);
+                                System.out.println("Unique room types reserved last quarter: " + uniqueRoomTypes);
 
                                 emailToReservationCount.forEach((resEmail, count) ->
                                         System.out.println("Email: " + resEmail + ", Number of Reservations: " + count));

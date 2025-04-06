@@ -10,9 +10,11 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
+import java.time.temporal.Temporal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -164,8 +166,10 @@ public class SystemUtils {
         return null;
     }
 
-    public static String getDateStringOrNull(LocalDate date) {
-        return date == null ? null : getDateFormatter().format(date);
+    // 5 - Date/Time API
+    public static String getDateStringOrNull(Temporal date) {
+        return date == null ? null : (date instanceof LocalDate) ? getDateFormatter().format(date)
+                : getDateTimeFormatter().format(date);
     }
 
     public static LocalDate getFormattedDateOrNull(String date) {
@@ -174,6 +178,20 @@ public class SystemUtils {
         } catch (DateTimeParseException _) {
             return null;
         }
+    }
+
+    public static LocalDateTime getFormattedDateTimeOrNull(String date) {
+        try {
+            // 5 - Date/Time API
+            return LocalDateTime.parse(date, getDateTimeFormatter());
+        } catch (DateTimeParseException _) {
+            return null;
+        }
+    }
+
+    public static DateTimeFormatter getDateTimeFormatter() {
+        // 'DateTimeFormatter' is lenient by default, it does not allow invalid dates
+        return DateTimeFormatter.ofPattern("uuuu-MM-dd hh:mm").withResolverStyle(ResolverStyle.STRICT);
     }
 
     public static DateTimeFormatter getDateFormatter() {

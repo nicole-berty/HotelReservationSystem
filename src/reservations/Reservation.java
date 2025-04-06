@@ -8,6 +8,7 @@ import system.SystemUtils;
 
 import java.security.SecureRandom;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
@@ -27,7 +28,7 @@ public class Reservation {
     private double totalCost;
     private double depositPaid;
     private boolean cancelled;
-    private LocalDate creationDate;
+    private LocalDateTime createdAt;
     private LocalDate cancellationDate = null;
     private Set<Room> roomsReserved;
     private boolean paid;
@@ -41,14 +42,14 @@ public class Reservation {
     public Reservation(Reservation other) {
         this(other.reservationId, other.name, other.email, other.reservationType == ReservationType.ADVANCE_PURCHASE,
                 other.hotelName, other.refundable, other.checkInDate, other.numNights, other.totalCost, other.depositPaid,
-                other.creationDate, other.cancellationDate, other.roomsReserved, other.paid, other.cancelled, other.completed,
+                other.createdAt, other.cancellationDate, other.roomsReserved, other.paid, other.cancelled, other.completed,
                 other.pricingStrategy, other.checkedIn, other.additionalCosts);
     }
 
     // Reservation constructor with all 19 fields to be read from file
     public Reservation(String reservationId, String name, String email, boolean advancedPurchase, String hotelName,
                        boolean refundable, LocalDate checkInDate, int numNights, double totalCost, double depositPaid,
-                       LocalDate creationDate, LocalDate cancellationDate,  Set<Room> roomsReserved,
+                       LocalDateTime createdAt, LocalDate cancellationDate, Set<Room> roomsReserved,
                        boolean paid, boolean cancelled, boolean completed, PricingStrategy pricingStrategy,
                        boolean checkedIn, int[] additionalCosts) {
         this(name, email, advancedPurchase, refundable, checkInDate, numNights, roomsReserved, paid, pricingStrategy, additionalCosts);
@@ -63,7 +64,7 @@ public class Reservation {
         this.checkedIn = checkedIn;
         this.reservationId = reservationId;
         this.depositPaid = depositPaid;
-        this.creationDate = creationDate;
+        this.createdAt = createdAt;
         this.cancellationDate = cancellationDate;
     }
 
@@ -84,7 +85,7 @@ public class Reservation {
         this.refundable = refundable;
         this.checkInDate = checkInDate;
         this.hotelName = HotelSystem.getInstance().getSelectedHotel().getName();
-        this.creationDate = LocalDate.now();
+        this.createdAt = HotelSystem.currentTime.get(); // 1 - Lambdas: Supplier, 5 - Date/Time API
         calculateTotalCost();
     }
 
@@ -204,6 +205,7 @@ public class Reservation {
     }
 
     public boolean conflictsWith(LocalDate checkIn, LocalDate checkOut) {
+        // 5 - Date/Time API
         return this.checkInDate.isBefore(checkOut) && (this.checkInDate.plusDays(numNights)).isAfter(checkIn);
     }
 
@@ -215,7 +217,7 @@ public class Reservation {
         }
         return String.format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s", reservationId, name, email, reservationType,
                 hotelName, refundable, SystemUtils.getDateStringOrNull(checkInDate), numNights, totalCost, depositPaid,
-                SystemUtils.getDateStringOrNull(creationDate), SystemUtils.getDateStringOrNull(cancellationDate),
+                SystemUtils.getDateStringOrNull(createdAt), SystemUtils.getDateStringOrNull(cancellationDate),
                 roomsReservedSb, paid, cancelled, completed, getPricingStrategy(), checkedIn, Arrays.toString(additionalCosts));
     }
 

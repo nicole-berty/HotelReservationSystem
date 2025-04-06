@@ -9,6 +9,7 @@ import reservations.Reservation;
 import reservations.ReservationType;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.regex.*;
 
@@ -28,7 +29,8 @@ public class DataFileParser {
         int numNights = Integer.parseInt(fields[7].trim());
         double totalCost = Double.parseDouble(fields[8].trim());
         double deposit = Double.parseDouble(fields[9].trim());
-        LocalDate creationDate = SystemUtils.getFormattedDateOrNull(fields[10]);
+        // 5 - Date/Time API
+        LocalDateTime creationDate = SystemUtils.getFormattedDateTimeOrNull(fields[10]);
         LocalDate cancellationDate = SystemUtils.getFormattedDateOrNull(fields[11]);
 
         List<String> roomsList = List.of(fields[12].split(","));

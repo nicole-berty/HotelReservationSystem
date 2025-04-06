@@ -34,7 +34,7 @@ sealed public abstract class Person permits Customer, Employee {
     // it is used depends on object type that calls it at runtime
     public void cancelReservation(Reservation reservation) {
         reservation.setCancelled(true);
-        reservation.setCancellationDate(LocalDate.now());
+        reservation.setCancellationDate(LocalDate.from(HotelSystem.currentTime.get())); // 1 - Lambdas: Supplier
         String reservations = SystemUtils.getModifiedReservationList(reservation);
         boolean success = SystemUtils.writeToFile(HotelSystem.getInstance().dataFiles.get("reservations"), reservations, false);
         if(success) {

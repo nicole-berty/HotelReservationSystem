@@ -15,6 +15,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -106,6 +108,7 @@ public class SystemMenu {
                             System.out.println("Please enter a valid option!");
                             userInput = getInput();
                         }
+                        // 3 - Switch expressions and pattern matching
                         switch (userInput) {
                             case "1" -> employee.checkIn(reservation1);
                             case "2" -> employee.checkOut(reservation1);
@@ -115,8 +118,9 @@ public class SystemMenu {
                     }
                     break;
                 case "3":
-                    if(employee instanceof HotelManager) {
-                        displayMainManagerMenu((HotelManager) employee);
+                    // 3 - Switch expressions and pattern matching
+                    if(employee instanceof HotelManager hotelManager) {
+                        displayMainManagerMenu(hotelManager);
                     } else {
                         displayStartMenu();
                     }
@@ -163,23 +167,26 @@ public class SystemMenu {
                     } else {
                         Hotel hotel1 = DataFileParser.parseHotelData(hotel);
                         System.out.println(STR."Which pricing strategy would you like the hotel to use from now on? \nIt currently uses the \{hotel1.getPricingStrategy()} strategy.");
-                        System.out.println("(1) Regular Pricing (2) Promotional Pricing (3) Corporate Pricing (4) Seasonal Pricing");
+                        System.out.println("(1) Regular Pricing (2) Promotional Pricing (3) Corporate Pricing (4) Seasonal Pricing (B) Go Back");
                         List<String> newValidOptions = getOptions(4);
+                        newValidOptions.add("b");
                         userInput = getInput();
                         while (!newValidOptions.contains(userInput.toLowerCase())) {
                             System.out.println("Please enter a valid option!");
                             userInput = getInput();
                         }
-                        String strategy = "regular";
-                        switch (userInput) {
-                            case "1" -> strategy = "regular";
-                            case "2" -> strategy = "promotional";
-                            case "3" -> strategy = "corporate";
-                            case "4" -> strategy = "seasonal";
+                        if(!userInput.equalsIgnoreCase("b")) {
+                            // 3 - Switch expressions and pattern matching
+                            String strategy = switch (userInput) {
+                                case "2" -> "promotional";
+                                case "3" -> "corporate";
+                                case "4" -> "seasonal";
+                                default -> "regular";
+                            };
+                            PricingStrategy pricingStrategy = PricingStrategy.fromString(strategy);
+                            hotel1.setPricingStrategy(pricingStrategy);
+                            manager.changePricingStrategy(hotel1);
                         }
-                        PricingStrategy pricingStrategy = PricingStrategy.fromString(strategy);
-                        hotel1.setPricingStrategy(pricingStrategy);
-                        manager.changePricingStrategy(hotel1);
                     }
                     break;
                 case "4":
@@ -216,8 +223,8 @@ public class SystemMenu {
         return Optional.of(data)
                 .orElse(List.of()) // Provide a default empty list in case method returned null
                 .stream()
-                .filter(Objects::nonNull)
-                .collect(Collectors.joining("|"));
+                .filter(Objects::nonNull) // 2 - Streams - Intermediate Operations: filter()
+                .collect(Collectors.joining("|")); // 2 - Streams - Terminal Operations: collect()
     }
 
     public static void displayMainMenu(Person person) {
@@ -246,10 +253,15 @@ public class SystemMenu {
                     }
                     break;
                 case "3":
+                    // 1 - Lambdas - Function
+                    Function<Reservation, String> reservationSummary = res ->
+                            STR."Reservation ID: \{res.getReservationId()} | Total Cost: €\{String.format("%.2f", res.getTotalCost())} | Check In Date: \{res.getCheckInDate().toString()} Email: \{res.getEmail()} | Rooms\{res.getReservedRoomCounts()}";
+                    Function<Room, String> roomSummary = room ->
+                            STR."Room Number: \{room.getRoomNumber()} | Cost: €\{String.format("%.2f", room.getCost())} | Type: \{room.getRoomType()} Occupied: \{room.isOccupied()}";
                     if(person instanceof Employee) {
-                        System.out.println("View Reservations (1) All (2) By Check In Date (3) By Email (4) Cancelled (5) Completed Stays");
+                        System.out.println("View Reservations (1) All (2) By Check In Date (3) By Email (4) Cancelled (5) Completed Stays (6) Reservation Statistics");
                         userInput = getInput();
-                        List<String> innerValidValues = getOptions(5);
+                        List<String> innerValidValues = getOptions(6);
                         while (!innerValidValues.contains(userInput.toLowerCase())) {
                             System.out.println("Please enter a valid option!");
                             userInput = getInput();
@@ -257,7 +269,10 @@ public class SystemMenu {
                         switch (userInput) {
                             case "1":
                                 System.out.print(HotelSystem.getInstance().dataFiles.get("reservations").headers());
-                                person.retrieveAllReservations().forEach(System.out::println);
+                                Consumer<Reservation> printReservation = res -> System.out.println(res); // 1 - Lambdas: Consumer
+                                person.retrieveAllReservations().stream().limit(10) // 2 - Streams - Intermediate Operations: limit()
+                                        .forEach(printReservation); // 2 - Streams - Terminal Operations: for each
+                                System.out.println("**Only 10 reservations are shown for readability**");
                                 break;
                             case "2":
                                 System.out.println("Enter a date in the format YYYY-MM-DD.");
@@ -278,29 +293,87 @@ public class SystemMenu {
                                 System.out.println("Cancelled reservations:");
                                 System.out.print(HotelSystem.getInstance().dataFiles.get("reservations").headers());
                                 // predicate used to filter reservations for those which were cancelled
-                                Predicate<Reservation> cancellationPredicate = Reservation::isCancelled;
+                                Predicate<Reservation> cancellationPredicate = Reservation::isCancelled; // 1 - Lambdas: Predicate
                                 person.retrieveAllReservations().stream().filter(cancellationPredicate).forEach(System.out::println);
                                 break;
                             case "5":
                                 System.out.println("Completed stays:");
                                 System.out.print(HotelSystem.getInstance().dataFiles.get("reservations").headers());
-                                Predicate<Reservation> completedPredicate = Reservation::isCompleted;
+                                Predicate<Reservation> completedPredicate = Reservation::isCompleted; // 1 - Lambdas: Predicate
                                 // method reference used to filter reservations for those which are completed
                                 person.retrieveAllReservations().stream()
-                                        .filter(completedPredicate::test).forEach(System.out::println);
+                                        .filter(completedPredicate::test).forEach(System.out::println); // 1 - Lambdas: Consumer, forEach expects a consumer, in this case the method reference for println
                                 break;
+                            case "6":
+                                var reservations = person.retrieveAllReservations();
+                                var reservationsLastMonth = reservations.stream().filter(r -> r.getCheckInDate().isBefore(LocalDate.now()) && r.getCheckInDate().isAfter(LocalDate.now().minusMonths(1))).toList();
+                                var rooms = HotelSystem.getInstance().getSelectedHotel().getRooms();
+
+                                long resCount = reservations.stream().count(); // 2 - Streams - Terminal Operations: count()
+                                Optional<Reservation> cheapestRes = reservations.stream()
+                                        .min(Comparator.comparing(Reservation::getTotalCost)); // 2 - Streams - Terminal Operations: min()
+                                Optional<Reservation> mostExpensiveRes = reservations.stream()
+                                        .max(Comparator.comparing(Reservation::getTotalCost)); // 2 - Streams - Terminal Operations: max()
+                                boolean allCompleted = reservations.stream().allMatch(res -> res.isCompleted()); // 2 - Streams - Terminal Operations: allMatch()
+                                boolean anyCancellations = reservations.stream().anyMatch(res -> res.isCancelled());  // 2 - Streams - Terminal Operations: anyMatch()
+                                boolean allRoomsAreCheap = rooms.stream().noneMatch(room -> room.getCost() > 200);  // 2 - Streams - Terminal Operations: noneMatch()
+                                Map<Boolean, List<Room>> partitioned = rooms.stream()
+                                        .collect(Collectors.partitioningBy(room -> room.getCost() > 200));  // 2 - Streams - Terminal Operations: Collectors.partitioningBy()
+                                Predicate<Room> isOccupiedPredicate = Room::isOccupied;
+                                Optional<Room> availableRoom = rooms.stream()
+                                        .filter(Predicate.not(isOccupiedPredicate))  // 1 - Lambdas - Predicate, negation, 2 - Streams - Intermediate Operations: filter()
+                                        .findAny();  // 2 - Streams - Terminal Operations: findAny() returns any available room
+
+                                Map<String, Integer> emailToReservationCount = reservations.stream()
+                                        .collect(Collectors.toMap( // 2 - Streams - Terminal Operations: Collectors.toMap, map email type to number of reservations made
+                                                Reservation::getEmail,
+                                                _ -> 1,
+                                                Integer::sum  // Merge function: sum the counts if same email is encountered
+                                        ));
+
+                                // Extract and filter distinct room types from last month's reservations
+                                List<RoomType> uniqueRoomTypes = reservationsLastMonth.stream()
+                                        .flatMap(res -> res.getRoomsReserved().stream())
+                                        .map(Room::getRoomType)
+                                        .distinct() // 2 - Streams - Terminal Operations: distinct()
+                                        .toList();
+
+
+                                System.out.println(STR."Reservation Statistics for \{HotelSystem.getInstance().getSelectedHotel().getName()}:");
+                                System.out.println(STR."Reservations Made: \{resCount}");
+                                cheapestRes.map(reservationSummary).ifPresent(res -> System.out.println(STR."The cheapest reservation is: \{res}"));
+                                mostExpensiveRes.map(reservationSummary).ifPresent(res -> System.out.println(STR."The most expensive reservation is: \{res}"));
+                                System.out.println("All reservations are complete? " + allCompleted);
+                                System.out.println("Any cancellations? " + anyCancellations);
+
+                                System.out.println("\nHotel Room Statistics");
+                                availableRoom.map(roomSummary).ifPresentOrElse(room -> System.out.println("Found an available room: " + room),
+                                        () -> System.out.println("There are no rooms available in the hotel right now."));
+                                System.out.println("Any expensive rooms, > €200/night? " + !allRoomsAreCheap);
+                                System.out.println("Expensive rooms: ");
+                                partitioned.get(true).stream().map(roomSummary).forEach(System.out::println);
+                                System.out.println("Cheap rooms: ");
+                                partitioned.get(false).stream().map(roomSummary).forEach(System.out::println);
+
+                                System.out.println("Unique room types reserved last month: " + uniqueRoomTypes);
+
+                                emailToReservationCount.forEach((resEmail, count) ->
+                                        System.out.println("Email: " + resEmail + ", Number of Reservations: " + count));
                         }
                     } else {
                         System.out.println("Reservations found for this email shown below.");
                         System.out.print(HotelSystem.getInstance().dataFiles.get("reservations").headers());
-                        person.retrieveAllReservations().stream().filter(r -> Objects.equals(r.getEmail(), person.getEmail())).forEach(System.out::println);
+
+                        person.retrieveAllReservations().stream().filter(r -> Objects.equals(r.getEmail(),
+                                        person.getEmail())).map(reservationSummary) // 2 - Streams - Intermediate Operations: map()
+                                .forEach(System.out::println);
                     }
                     break;
                 case "4":
-                    if(person instanceof Customer) {
-                        displayStartMenu();
-                    } else {
-                        displayEmployeeMainMenu((Employee) person);
+                    // 3 - Switch expressions and pattern matching
+                    switch (person) {
+                        case Employee employee -> displayEmployeeMainMenu(employee);
+                        case Customer _ -> displayStartMenu();
                     }
                     break;
             }
@@ -344,13 +417,13 @@ public class SystemMenu {
             Set<Integer> occupiedRooms = person.retrieveAllReservations().stream()
                     .filter(res -> res.conflictsWith(finalCheckInDate, checkOutDate))
                     .flatMap(res -> res.getRoomsReserved().stream()) // Flatten the lists of rooms
-                    .map(Room::getRoomNumber) // Extract room numbers
-                    .collect(Collectors.toSet());
+                    .map(Room::getRoomNumber) // 2 - Streams - Intermediate Operations: map(), to extract room numbers
+                    .collect(Collectors.toSet()); // 2 - Streams - Terminal Operations: collect()
             Predicate<Room> isAvailable = room -> !occupiedRooms.contains(room.getRoomNumber());
             availableRoomsByType  = HotelSystem.getInstance().getSelectedHotel()
                     .getRooms().stream()
                     .filter(isAvailable)
-                    .collect(Collectors.groupingBy(Room::getRoomType)); // Group available rooms by type
+                    .collect(Collectors.groupingBy(Room::getRoomType)); // 2 - Streams - Terminal Operations: Collectors.groupingBy, group available rooms by type
             int totalAvailableRooms = availableRoomsByType.values().stream()
                     .mapToInt(List::size)
                     .sum();
@@ -568,7 +641,7 @@ public class SystemMenu {
             System.out.println(question);
             userInput = getInput();
             if(userInput.equalsIgnoreCase("q")) {
-                System.exit(0);
+                exit(0);
             }
         }
         return userInput;

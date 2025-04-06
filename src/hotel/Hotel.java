@@ -89,7 +89,7 @@ public class Hotel {
     }
 
     public double getRoomCost(RoomType roomType) {
-        return roomTypeCostMap.getOrDefault(roomType, 0.0); // Default to 0.0 if not found
+        return roomTypeCostMap.getOrDefault(roomType, 150.0); // Default to 150.0 if not found
     }
 
     public List<Room> getRooms() {
@@ -98,8 +98,8 @@ public class Hotel {
 
     public Room getRoomByNumber(int num) {
         return rooms.stream()
-                .filter(room -> room.getRoomNumber() == num)
-                .findFirst()
+                .filter(room -> room.getRoomNumber() == num) // 2 - Streams - Intermediate Operations: filter()
+                .findFirst()// 2 - Streams - Terminal Operations: findFirst matching criteria
                 .orElse(null);
     }
 

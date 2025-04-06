@@ -35,6 +35,10 @@ public class Room {
         return roomType;
     }
 
+    public double getCost() {
+        return cost;
+    }
+
     public int getRoomNumber() {
         return roomNumber;
     }

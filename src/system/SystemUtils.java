@@ -148,13 +148,15 @@ public class SystemUtils {
                     && HotelSystem.getInstance().getSelectedHotel().getName().equals(data.get(2))) {
                 ArrayList<Employee> employees = DataFileParser.getEmployeesFromPeopleList(STR."[\{data.get(3)}]");
                 for(Employee employee : employees) {
-                    if(employee instanceof HotelManager) {
-                        return new HotelManager(employee.getName(), email, employee.getSalary(),
-                                ((HotelManager) employee).getManagedDepartments(),
-                                ((HotelManager) employee).getStaffUnderManagement());
-                    } else if(employee instanceof HotelReceptionist) {
-                        return new HotelReceptionist(employee.getName(), email, employee.getSalary(),
-                                ((HotelReceptionist) employee).getAssignedCheckInCounter());
+                    // 3 - Switch expressions and pattern matching
+                    // 4 Sealed Classes and Interfaces - exhaustive checking in switch statement
+                    switch (employee) {
+                        case HotelManager hotelManager -> {
+                            return hotelManager;
+                        }
+                        case HotelReceptionist hotelReceptionist -> {
+                            return hotelReceptionist;
+                        }
                     }
                 }
             }
@@ -170,8 +172,8 @@ public class SystemUtils {
         try {
             return LocalDate.parse(date, getDateFormatter());
         } catch (DateTimeParseException _) {
+            return null;
         }
-        return null;
     }
 
     public static DateTimeFormatter getDateFormatter() {

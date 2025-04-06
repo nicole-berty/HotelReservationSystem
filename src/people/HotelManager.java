@@ -6,6 +6,7 @@ import system.HotelSystem;
 import system.SystemUtils;
 
 import java.util.Arrays;
+import java.util.function.Function;
 
 public final class HotelManager extends Employee {
     private String[] managedDepartments;
@@ -26,8 +27,8 @@ public final class HotelManager extends Employee {
     }
 
     public void giveDiscount(Reservation reservation, double discount) {
-        double cost = reservation.getTotalCost();
-        double newPrice = Math.round(cost * (1 - (discount / 100.0)));
+        Function<Reservation, Double> getDiscountedPrice = res -> Math.round(res.getTotalCost() * 100 * (1 - discount / 100.0)) / 100.0; // 1 - Lambdas: Function
+        double newPrice = getDiscountedPrice.apply(reservation);
         reservation.setTotalCost(newPrice);
         String reservations = SystemUtils.getModifiedReservationList(reservation);
         boolean success = SystemUtils.writeToFile(HotelSystem.getInstance().dataFiles.get("reservations"), reservations, false);

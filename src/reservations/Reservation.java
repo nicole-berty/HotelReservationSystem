@@ -1,6 +1,7 @@
 package reservations;
 
 import hotel.Room;
+import hotel.RoomType;
 import pricing.PricingStrategy;
 import system.HotelSystem;
 import system.SystemUtils;
@@ -9,7 +10,10 @@ import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public class Reservation {
     private String reservationId;
@@ -30,7 +34,7 @@ public class Reservation {
     private boolean completed = false;
     private PricingStrategy pricingStrategy;
     private boolean checkedIn;
-    private int[] additionalCosts = new int[0];
+    private int[] additionalCosts;
     private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
     // Copy constructor to be able to initialise a reservation object from another reservation
@@ -73,7 +77,8 @@ public class Reservation {
         this.roomsReserved = new HashSet<>(roomsReserved); // defensive copy
         this.reservationType = advancedPurchase ? ReservationType.ADVANCE_PURCHASE : ReservationType.STANDARD;
         this.checkedIn = false;
-        this.reservationId = generateReservationId();
+        Supplier<String> bookingReferenceSupplier = this::generateReservationId; // 1 - Lambdas: Supplier
+        this.reservationId = bookingReferenceSupplier.get();
         this.name = name;
         this.email = email;
         this.refundable = refundable;
@@ -87,7 +92,7 @@ public class Reservation {
         double cost = 0;
         for(var room : roomsReserved) {
             // total cost is the cost of each room in the reservation x number of nights all added together
-            cost += (HotelSystem.getInstance().getSelectedHotel().getRoomTypeCostMap().get(room.getRoomType()) * numNights);
+            cost += (HotelSystem.getInstance().getSelectedHotel().getRoomCost(room.getRoomType()) * numNights);
         }
         // you get 5% off total cost for advance purchase
         if(reservationType == ReservationType.ADVANCE_PURCHASE) {
@@ -150,6 +155,12 @@ public class Reservation {
         }
 
         return id.toString();
+    }
+
+    public Map<RoomType, Long> getReservedRoomCounts() {
+        return roomsReserved.stream()
+                .collect(Collectors.groupingBy(Room::getRoomType, // 2 - Streams - Terminal Operations: Collectors.groupingBy,
+                        Collectors.counting())); // Collectors.counting() to count the number of rooms by type
     }
 
     public LocalDate getCheckInDate() {

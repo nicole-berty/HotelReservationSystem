@@ -1,10 +1,10 @@
 package pricing;
 
 import java.text.NumberFormat;
-import java.util.Arrays;
 import java.util.Locale;
 
-public interface PricingStrategy {
+// 4 Sealed Classes and Interfaces
+sealed public interface PricingStrategy permits CorporatePricingStrategy, PromotionalDiscountStrategy, RegularPricingStrategy, SeasonalPricingStrategy {
 
     // default method used if calculatePrice not implemented in class that implements the interface
     default double calculatePrice(double basePrice) {

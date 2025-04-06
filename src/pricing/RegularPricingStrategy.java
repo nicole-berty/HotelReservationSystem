@@ -1,6 +1,7 @@
 package pricing;
 
-public class RegularPricingStrategy implements PricingStrategy {
+// 4 Sealed Classes and Interfaces - subclass is final
+public final class RegularPricingStrategy implements PricingStrategy {
 
     @Override
     public String toString() {

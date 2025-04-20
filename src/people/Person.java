@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-// 4 Sealed Classes and Interfaces
+// 4 - Sealed Classes and Interfaces
 sealed public abstract class Person permits Customer, Employee {
     private final String name;
     private final String email;

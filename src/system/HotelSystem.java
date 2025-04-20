@@ -37,7 +37,7 @@ public class HotelSystem {
 
 
     public void initialise() {
-        SystemUtils.getOrCreateFile(HotelSystem.getInstance().dataFiles.get("hotels").path());
+        SystemUtils.getOrCreatePath(HotelSystem.getInstance().dataFiles.get("hotels").path());
         boolean missingHeaders = SystemUtils.isMissingHeaders(HotelSystem.getInstance().dataFiles.get("hotels").path());
 
         if(missingHeaders) {

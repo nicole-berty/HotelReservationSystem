@@ -310,11 +310,11 @@ public class SystemMenu {
                                 break;
                             case "6":
                                 var reservations = person.retrieveAllReservations();
-                                var reservationsLastQuarter = reservations.stream()
-                                        .filter(r -> r.getCheckInDate()
-                                                .isBefore(ChronoLocalDate.from(HotelSystem.currentTime.get())) && r.getCheckInDate() // 1 - Lambdas: Supplier to get current time
-                                                .isAfter(ChronoLocalDate.from(HotelSystem.currentTime.get().minusMonths(3)))) // 5 - Date/Time API
-                                        .toList();
+                                Predicate<Reservation> isFromLastQuarter = r ->
+                                        r.getCheckInDate().isBefore(ChronoLocalDate.from(HotelSystem.currentTime.get())) // 1 - Lambdas: Supplier to get current time
+                                                && r.getCheckInDate().isAfter(ChronoLocalDate.from(HotelSystem.currentTime.get().minusMonths(3))); // 5 - Date/Time API
+
+                                var reservationsLastQuarter = FilterUtil.filter(reservations, isFromLastQuarter);  // 7 - Generics uses in FilterUtil
                                 var rooms = HotelSystem.getInstance().getSelectedHotel().getRooms();
 
                                 long resCount = reservations.stream().count(); // 2 - Streams - Terminal Operations: count()
@@ -328,14 +328,14 @@ public class SystemMenu {
                                 Map<Boolean, List<Room>> partitioned = rooms.stream()
                                         .collect(Collectors.partitioningBy(room -> room.getCost() > 200));  // 2 - Streams - Terminal Operations: Collectors.partitioningBy()
                                 Predicate<Room> isOccupiedPredicate = Room::isOccupied;
-                                Optional<Room> availableRoom = rooms.stream()
+                                Optional<Room> availableRoom = rooms.stream() // optional, so may return null
                                         .filter(Predicate.not(isOccupiedPredicate))  // 1 - Lambdas: Predicate, negation, 2 - Streams - Intermediate Operations: filter()
                                         .findAny();  // 2 - Streams - Terminal Operations: findAny() returns any available room
 
                                 Map<String, Integer> emailToReservationCount = reservations.stream()
                                         .collect(Collectors.toMap( // 2 - Streams - Terminal Operations: Collectors.toMap, map email type to number of reservations made
                                                 Reservation::getEmail,
-                                                _ -> 1,
+                                                _ -> 1, // Java 22 - Unnamed variables
                                                 Integer::sum  // Merge function: sum the counts if same email is encountered
                                         ));
 
@@ -381,7 +381,7 @@ public class SystemMenu {
                     // 3 - Switch expressions and pattern matching
                     switch (person) {
                         case Employee employee -> displayEmployeeMainMenu(employee);
-                        case Customer _ -> displayStartMenu();
+                        case Customer _ -> displayStartMenu(); // Java 22 - Unnamed variables and patterns
                     }
                     break;
             }

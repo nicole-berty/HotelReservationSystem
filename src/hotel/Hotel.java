@@ -2,6 +2,7 @@ package hotel;
 
 import people.Employee;
 import pricing.PricingStrategy;
+import system.FilterUtil;
 import system.SystemUtils;
 
 import java.time.LocalDate;
@@ -104,7 +105,7 @@ public class Hotel {
     }
 
     public List<Room> getVacantRooms() {
-        return rooms.stream().filter(room -> !room.isOccupied()).toList();
+        return FilterUtil.filter(rooms, room -> !room.isOccupied());
     }
 
     public void addEmployee(Employee employee) {

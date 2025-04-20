@@ -3,7 +3,7 @@ package people;
 import reservations.Reservation;
 import system.HotelSystem;
 import system.SystemUtils;
-// 4 Sealed Classes and Interfaces
+// 4 - Sealed Classes and Interfaces
 public abstract sealed class Employee extends Person permits HotelManager, HotelReceptionist {
     private double salary;
     Employee(String name, String email, double salary) {

@@ -1,6 +1,6 @@
 package pricing;
 
-// 4 Sealed Classes and Interfaces - subclass is final
+// 4 - Sealed Classes and Interfaces - subclass is final
 public final class RegularPricingStrategy implements PricingStrategy {
 
     @Override

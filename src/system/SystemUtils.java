@@ -6,9 +6,11 @@ import people.HotelManager;
 import people.HotelReceptionist;
 import reservations.Reservation;
 
-import java.io.*;
+import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -26,27 +28,26 @@ public class SystemUtils {
      * @param fileName the name of the file to be created or retrieved
      * @return the file if file is created or already exists, null otherwise
      */
-    public static File getOrCreateFile(String fileName) {
-        File file = new File(fileName);
+    public static Path getOrCreatePath(String fileName) { // 9 - NIO2: Create or retrieve file using Path and Files
+        Path path = Paths.get(fileName); // 9 - NIO2
         try {
-            if (file.createNewFile()) {
-                // Java22 Feature: String templates for easier string interpolation
-                System.out.println(STR."File created: \{file.getName()}");
+            if (Files.notExists(path)) {
+                Files.createFile(path); // 9 - NIO2
+                System.out.println(STR."File created: \{path.getFileName()}");
             }
-            return file;
-            // Checked exception IOException may occur when creating, opening or reading files, must catch it or declare
-            // it in the method signature
+            return path;
         } catch (IOException e) {
-            System.out.println(STR."An error occurred when creating the file \{file.getName()}.");
+            System.out.println(STR."An error occurred when creating the file \{fileName}.");
             e.printStackTrace();
             return null;
         }
     }
 
+
     public static List<String> readFileAsString(String fileName) {
         List<String> fileContents = new ArrayList<>();
         try {
-            fileContents = List.of(Files.readString(Paths.get(fileName)).split("\n"));
+            fileContents = List.of(Files.readString(Paths.get(fileName)).split("\n")); // 9 - NIO2
         } catch (IOException e) {
             System.out.println(STR."Failed to read file \{fileName}, please try again.");
         }
@@ -54,7 +55,7 @@ public class SystemUtils {
     }
 
     public static int getNumLinesInFile(String fileName) {
-        try (Stream<String> stream = Files.lines(Paths.get(fileName))) {
+        try (Stream<String> stream = Files.lines(Paths.get(fileName))) { // 9 - NIO2
             return (int) stream.count();
         } catch (IOException e) {
             return 0;
@@ -68,7 +69,7 @@ public class SystemUtils {
     }
 
     public static List<String> readAndSearchFile(String fileName, String searchValue) {
-        try (Stream<String> stream = Files.lines(Paths.get(fileName))) {
+        try (Stream<String> stream = Files.lines(Paths.get(fileName))) { // 9 - NIO2
             // LVTI => local variable type inferred
             var result = stream.filter(line -> Arrays.asList(line.split("\\|")).contains(searchValue)).findFirst();
             return Arrays.asList(result.orElse("").split("\\|"));
@@ -119,17 +120,15 @@ public class SystemUtils {
     }
 
     public static boolean writeToFile(FileDetails fileDetails, String data, boolean append) {
-        if(getOrCreateFile(fileDetails.path()) != null) {
-            String dataWithHeaders;
-            // if the file is missing headers or if we're going to overwrite instead of append, add headers to data
-            if(isMissingHeaders(fileDetails.path()) || !append) {
-                dataWithHeaders = fileDetails.headers() + data;
-            } else {
-                dataWithHeaders = data;
-            }
-            // try-with-resources statement means we don't need to close the resources
-            try(PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(fileDetails.path(), append)))) {
-                out.println(dataWithHeaders);
+        Path path = getOrCreatePath(fileDetails.path());
+        if (path != null) {
+            String dataWithHeaders = isMissingHeaders(fileDetails.path()) || !append
+                    ? fileDetails.headers() + data
+                    : data;
+            try {
+                Files.writeString(path, dataWithHeaders + System.lineSeparator(),
+                        StandardOpenOption.CREATE,
+                        append ? StandardOpenOption.APPEND : StandardOpenOption.TRUNCATE_EXISTING);
                 return true;
             } catch (IOException e) {
                 e.printStackTrace();
@@ -138,12 +137,13 @@ public class SystemUtils {
         return false;
     }
 
+
     public static Employee validateAndGetEmployee(String email, String password) {
-        File credentialsFile = SystemUtils.getOrCreateFile(HotelSystem.getInstance().dataFiles.get("credentials").path());
-        if(credentialsFile != null) {
+        Path credentialsPath = getOrCreatePath(HotelSystem.getInstance().dataFiles.get("credentials").path());
+        if(credentialsPath != null) {
             // data is a list of (email, password, hotel, Person) from the credentials csv file or null if credentials not found
             // LVTI => local variable type inferred here
-            var data = readAndSearchFile(credentialsFile.getPath(), email);
+            var data = readAndSearchFile(credentialsPath.toString(), email);
             // Unchecked exceptions possible here - avoid NullPointerException and ArrayIndexOutOfBoundsException by
             // checking nullity and list length before attempting access
             if(data != null && data.size() > 2 && email.equals(data.get(0)) && password.equals(data.get(1))
@@ -175,7 +175,7 @@ public class SystemUtils {
     public static LocalDate getFormattedDateOrNull(String date) {
         try {
             return LocalDate.parse(date, getDateFormatter());
-        } catch (DateTimeParseException _) {
+        } catch (DateTimeParseException _) { // Java 22 - Unnamed variables
             return null;
         }
     }
@@ -184,7 +184,7 @@ public class SystemUtils {
         try {
             // 5 - Date/Time API
             return LocalDateTime.parse(date, getDateTimeFormatter());
-        } catch (DateTimeParseException _) {
+        } catch (DateTimeParseException _) { // Java 22 - Unnamed variables
             return null;
         }
     }

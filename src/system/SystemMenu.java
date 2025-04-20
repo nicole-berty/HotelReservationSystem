@@ -29,8 +29,8 @@ public class SystemMenu {
 
     public static void displayHotelSelectionMenu() {
         List<String> validValues = getOptions(HotelSystem.getInstance().hotels.size());
+        System.out.println(I18n.get("welcome")); // 10 - Localisation using resource bundle
         System.out.println(STR."""
-            Welcome to the MegaCorp(C) Hotels system!
             Please select the hotel you want to access or press q to exit.
             Current time: \{SystemUtils.getDateStringOrNull(HotelSystem.currentTime.get())}""");
 

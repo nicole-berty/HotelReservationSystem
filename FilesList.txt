@@ -16,6 +16,8 @@ src\reservations\Reservation.java
 src\reservations\ReservationType.java
 src\system\DataFileParser.java
 src\system\FileDetails.java
+src\system\FilterUtil.java
 src\system\HotelSystem.java
+src\system\I18n.java
 src\system\SystemMenu.java
 src\system\SystemUtils.java

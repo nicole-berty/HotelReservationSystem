@@ -8,6 +8,7 @@ import people.Employee;
 import people.HotelManager;
 import people.Person;
 import pricing.PricingStrategy;
+import reservations.InvoiceService;
 import reservations.Reservation;
 
 import java.time.Duration;
@@ -137,12 +138,13 @@ public class SystemMenu {
     public static void displayMainManagerMenu(HotelManager manager) {
         //noinspection InfiniteLoopStatement - false positive warning, we only want to exit if user input is q
         while(true) {
-            List<String> validValues = getOptions(4);
+            List<String> validValues = getOptions(5);
             System.out.println("Enter the option you would like to access or press q to exit.");
             System.out.println("(1) Reservations, Cancellations & Check In/out");
             System.out.println("(2) Apply Discounts");
             System.out.println("(3) Adjust Pricing Strategy");
-            System.out.println("(4) Logout");
+            System.out.println("(4) Invoices");
+            System.out.println("(5) Logout");
             System.out.println("(q) Exit");
             String userInput = getInput();
             while (!validValues.contains(userInput.toLowerCase())) {
@@ -194,6 +196,15 @@ public class SystemMenu {
                     }
                     break;
                 case "4":
+                    System.out.println("Generating invoices for all reservations...");
+                    // 8 - Concurrency, using ExecutorService to process a list of Callable's
+                    InvoiceService invoiceService = new InvoiceService();
+                    invoiceService.generateInvoicesConcurrently(manager.retrieveAllReservations());
+
+                    // Shutdown the ExecutorService after processing
+                    invoiceService.shutdown();
+                    break;
+                case "5":
                     displayStartMenu();
                     break;
             }

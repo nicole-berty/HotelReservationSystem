@@ -12,6 +12,7 @@ src\pricing\PricingStrategy.java
 src\pricing\PromotionalDiscountStrategy.java
 src\pricing\RegularPricingStrategy.java
 src\pricing\SeasonalPricingStrategy.java
+src\reservations\InvoiceService.java
 src\reservations\Reservation.java
 src\reservations\ReservationType.java
 src\system\DataFileParser.java

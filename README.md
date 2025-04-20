@@ -20,4 +20,7 @@ And finally use the following command to run the program directly from the root 
 
 The ``-cp`` flag indicates the classpath used, i.e. the location of the actual compiled classes.
 
-Use -Duser.language=fr -Duser.country=FR for French localisation (welcome message only, for demonstration purposes - es_ES also available).
+Use -Duser.language=fr -Duser.country=FR for French localisation (welcome message only, for demonstration purposes - es_ES also available):
+
+``java --enable-preview -cp classes -Duser.language=fr -Duser.country=FR Run``
+

@@ -350,11 +350,11 @@ public class SystemMenu {
                                                 Integer::sum  // Merge function: sum the counts if same email is encountered
                                         ));
 
-                                // Extract and filter distinct room types from last month's reservations
+                                // Extract and filter distinct room types from last quarter's reservations
                                 List<RoomType> uniqueRoomTypes = reservationsLastQuarter.stream()
                                         .flatMap(res -> res.getRoomsReserved().stream())
                                         .map(Room::getRoomType)
-                                        .distinct() // 2 - Streams - Terminal Operations: distinct()
+                                        .distinct() // 2 - Streams - Intermediate Operations: distinct()
                                         .toList();
 
 
